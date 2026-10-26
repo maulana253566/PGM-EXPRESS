@@ -12,6 +12,10 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase SDK (Versi Web CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -73,22 +77,6 @@
             </button>
         </div>
 
-        <!-- POPUP ALERT NOTIFIKASI KASBON MASUK KE ADMIN -->
-        <div id="toast-notif-admin" class="hidden bg-sky-500/20 border border-sky-500/40 p-4 rounded-2xl items-center justify-between transition-all">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-sky-500 text-slate-950 flex items-center justify-center font-bold">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-white uppercase">Notifikasi Admin!</h4>
-                    <p id="toast-msg" class="text-xs text-sky-200">Pengajuan kasbon baru saja masuk.</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('toast-notif-admin').classList.add('hidden')" class="text-xs text-slate-400 hover:text-white px-2 py-1">
-                Tutup
-            </button>
-        </div>
-
         <!-- FORM PENGAJUAN KASBON / TOP UP -->
         <section class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
             <div class="border-b border-slate-800 pb-4">
@@ -132,18 +120,17 @@
             </form>
         </section>
 
-        <!-- DASHBOARD PANEL ADMIN KASBON -->
+        <!-- REKAP TABEL DATA ONLINE FIREBASE -->
         <section class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fas fa-user-shield text-emerald-400"></i> Panel Kontrol Admin (Rekap Kasbon)
+                        <i class="fas fa-database text-emerald-400"></i> Rekap Tagihan & Kasbon Online
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">Cek notifikasi masuk dan batas waktu jatuh tempo (3 Hari).</p>
+                    <p class="text-xs text-slate-400 mt-1">Terhubung langsung secara otomatis (Real-Time Database).</p>
                 </div>
             </div>
 
-            <!-- TABEL DATA -->
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-left text-xs text-slate-300">
                     <thead class="bg-slate-800 text-slate-200 uppercase text-[10px] font-bold tracking-wider">
@@ -158,6 +145,9 @@
                         </tr>
                     </thead>
                     <tbody id="tabel-body-kasbon" class="divide-y divide-slate-800">
+                        <tr>
+                            <td colspan="7" class="text-center py-8 text-slate-500 italic text-xs">Menghubungkan ke server Firebase...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -176,7 +166,7 @@
             </div>
 
             <p class="text-xs text-slate-300 leading-relaxed">
-                Untuk menghindari penipuan, bukti transfer <strong>WAJIB dikirimkan langsung ke WhatsApp Admin</strong>. Pembeli tidak dapat mengubah status LUNAS sendiri tanpa konfirmasi Admin.
+                Bukti transfer <strong>WAJIB dikirimkan langsung ke WhatsApp Admin</strong>. Setelah kamu melunasi dan dicek Admin, status di website akan otomatis berubah jadi LUNAS.
             </p>
 
             <div class="pt-2">
@@ -191,11 +181,28 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT SYSTEM UTUH -->
+    <!-- SCRIPT FIREBASE & SISTEM REALTIME -->
     <script>
-        const ADMIN_WA_NUMBER = "6283157787231"; // Nomor WA Admin
-        const BIAYA_ADMIN = 10000; // Admin Rp 10.000
-        let listKasbon = JSON.parse(localStorage.getItem('pgm_kasbon_data')) || [];
+        // Konfigurasi Firebase dari Proyek PGM Express milikmu
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm-kLBcojA_-mIuyo34Vnt9T7Oo_2jR0A",
+            authDomain: "pgm-express.firebaseapp.com",
+            databaseURL: "https://pgm-express-default-rtdb.firebaseio.com",
+            projectId: "pgm-express",
+            storageBucket: "pgm-express.firebasestorage.app",
+            messagingSenderId: "851226580579",
+            appId: "1:851226580579:web:5e48a3d1d32957d2a28a56",
+            measurementId: "G-D6PMCZ9QSZ"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const kasbonRef = database.ref('kasbon_list');
+
+        const ADMIN_WA_NUMBER = "6283157787231";
+        const BIAYA_ADMIN = 10000;
+        let listKasbonGlobal = [];
 
         function hitungTotalAdmin() {
             const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
@@ -203,6 +210,7 @@
             document.getElementById('input-total').value = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
+        // Tambah Data Kasbon Langsung ke Server Firebase
         function tambahKasbon(e) {
             e.preventDefault();
 
@@ -218,8 +226,9 @@
             const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
             const jatuhTempoStr = jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
 
-            const itemBaru = {
-                id: Date.now(),
+            const newPostRef = kasbonRef.push();
+            newPostRef.set({
+                id: newPostRef.key,
                 tanggal: tanggalPinjamStr,
                 jatuhTempoIso: jatuhTempoDate.toISOString(),
                 jatuhTempoStr: jatuhTempoStr,
@@ -229,12 +238,7 @@
                 total: total,
                 catatan: catatan,
                 status: 'BELUM LUNAS'
-            };
-
-            listKasbon.unshift(itemBaru);
-            simpanDanRender();
-
-            tampilkanNotifAdmin(nama, total);
+            });
 
             let msg = `*HALO ADMIN PGM EXPRESS, SAYA MAU KASBON / TOP UP DANA!* 💸\n\n`;
             msg += `• *Nama Peminjam*: ${nama}\n`;
@@ -252,16 +256,27 @@
             document.getElementById('input-total').value = "Rp 0";
         }
 
-        function tampilkanNotifAdmin(nama, total) {
-            const toast = document.getElementById('toast-notif-admin');
-            const toastMsg = document.getElementById('toast-msg');
-            
-            if (toast && toastMsg) {
-                toastMsg.innerText = `Kasbon Baru: ${nama} sebesar Rp ${total.toLocaleString('id-ID')} (Jatuh Tempo 3 Hari).`;
-                toast.classList.remove('hidden');
-                toast.classList.add('flex');
+        // Fungsi Admin untuk Mengubah Status Jadi Lunas di Server Online
+        function setLunasAdmin(keyId, nama, total) {
+            if (confirm(`Konfirmasi bahwa kasbon atas nama "${nama}" sebesar Rp ${total.toLocaleString('id-ID')} SUDAH LUNAS?`)) {
+                database.ref('kasbon_list/' + keyId).update({
+                    status: 'LUNAS'
+                });
             }
         }
+
+        // Menerima Update Real-Time Secara Otomatis
+        kasbonRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            listKasbonGlobal = [];
+            
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    listKasbonGlobal.unshift({ keyId: key, ...data[key] });
+                });
+            }
+            renderTabel();
+        });
 
         function renderPengingatPembeli() {
             const banner = document.getElementById('banner-pengingat-pembeli');
@@ -270,7 +285,7 @@
 
             if (!banner || !teks || !btnWa) return;
 
-            const kasbonBelumLunas = listKasbon.filter(k => k.status === 'BELUM LUNAS');
+            const kasbonBelumLunas = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS');
             const sekarangIso = new Date().toISOString();
 
             if (kasbonBelumLunas.length > 0) {
@@ -309,16 +324,17 @@
 
             renderPengingatPembeli();
 
-            const kasbonBelumLunasCount = listKasbon.filter(k => k.status === 'BELUM LUNAS').length;
+            const kasbonBelumLunasCount = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS').length;
             if (notifCount) notifCount.innerText = kasbonBelumLunasCount;
             if (notifBadge) {
                 if (kasbonBelumLunasCount > 0) notifBadge.classList.remove('hidden');
+                else notifBadge.classList.add('hidden');
             }
 
-            if (listKasbon.length === 0) {
+            if (listKasbonGlobal.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="text-center py-8 text-slate-500 italic text-xs">Belum ada transaksi kasbon tersimpan.</td>
+                        <td colspan="7" class="text-center py-8 text-slate-500 italic text-xs">Belum ada transaksi kasbon tersimpan di server.</td>
                     </tr>
                 `;
                 return;
@@ -327,7 +343,7 @@
             tbody.innerHTML = '';
             const sekarangIso = new Date().toISOString();
 
-            listKasbon.forEach((item, index) => {
+            listKasbonGlobal.forEach((item) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition-colors";
 
@@ -350,20 +366,24 @@
                     <td class="p-3 font-mono text-sky-400">${item.dana}</td>
                     <td class="p-3 font-extrabold text-emerald-400">Rp ${item.total.toLocaleString('id-ID')}</td>
                     <td class="p-3">${statusBadge}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="bukaModalLunas(${index})" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer">
-                            <i class="fab fa-whatsapp"></i> Kirim Bukti ke WA
+                    <td class="p-3 text-center flex items-center justify-center gap-1">
+                        <button onclick="bukaModalLunas('${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
+                            <i class="fab fa-whatsapp"></i> WA
                         </button>
+                        ${!isLunas ? `
+                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Konfirmasi Lunas">
+                                <i class="fas fa-check-circle"></i> Set Lunas
+                            </button>
+                        ` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function bukaModalLunas(index) {
-            const item = listKasbon[index];
+        function bukaModalLunas(nama, total) {
             let msgWa = `*KIRIM BUKTI TRANSFER KASBON PGM EXPRESS* 📷\n\n`;
-            msgWa += `Halo Admin, saya mau mengirimkan foto bukti transfer pembayaran kasbon a.n *${item.nama}* sebesar *Rp ${item.total.toLocaleString('id-ID')}*.\n\n`;
+            msgWa += `Halo Admin, saya mau mengirimkan foto bukti transfer pembayaran tagihan kasbon a.n *${nama}* sebesar *Rp ${total.toLocaleString('id-ID')}*.\n\n`;
             msgWa += `Berikut bukti TF nya min:`;
 
             document.getElementById('btn-kirim-bukti-wa').href = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`;
@@ -378,15 +398,6 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
-
-        function simpanDanRender() {
-            localStorage.setItem('pgm_kasbon_data', JSON.stringify(listKasbon));
-            renderTabel();
-        }
-
-        window.onload = function() {
-            renderTabel();
-        };
     </script>
 </body>
 </html>
