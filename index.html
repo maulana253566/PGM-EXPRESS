@@ -49,7 +49,7 @@
                 </div>
 
                 <!-- TOMBOL LOGIN / LOGOUT ADMIN -->
-                <button id="btn-login-admin" onclick="toggleLoginAdmin()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
+                <button id="btn-login-admin" onclick="bukaModalLoginAdmin()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
                     <i class="fas fa-user-shield text-sky-400"></i>
                     <span id="label-admin">Login Admin</span>
                 </button>
@@ -164,6 +164,57 @@
 
     </main>
 
+    <!-- MODAL LOGIN ADMIN -->
+    <div id="modal-login" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-user-shield text-sky-400"></i> Login Admin
+                </h3>
+                <button onclick="tutupModalLogin()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-300 uppercase mb-2">PIN Keamanan Admin</label>
+                <input type="password" id="input-pin-admin" placeholder="Masukkan 6 Digit PIN Admin..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
+                <p id="error-pin" class="text-rose-400 text-[11px] mt-1 hidden">PIN Admin tidak valid!</p>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="prosesLoginAdmin()" class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition-all">
+                    Masuk Mode Admin
+                </button>
+                <button type="button" onclick="tutupModalLogin()" class="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-700">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI HAPUS ADMIN -->
+    <div id="modal-hapus" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center text-xl mx-auto">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-white">Konfirmasi Hapus Nota</h3>
+                <p id="teks-hapus-kasbon" class="text-xs text-slate-300 mt-1 leading-relaxed">
+                    Apakah kamu yakin ingin menghapus nota kasbon ini secara permanen?
+                </p>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" id="btn-eksekusi-hapus" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs transition-all">
+                    Ya, Hapus Data
+                </button>
+                <button type="button" onclick="tutupModalHapus()" class="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-700">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL POPUP DIARAHKAN KE WA ADMIN -->
     <div id="modal-bukti" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-2xl">
@@ -213,6 +264,7 @@
 
         let listKasbonGlobal = [];
         let isAdminLoggedIn = false;
+        let idKasbonYangAkanDihapus = null;
 
         window.onload = function() {
             if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
@@ -221,25 +273,37 @@
             }
         };
 
-        function toggleLoginAdmin() {
+        function bukaModalLoginAdmin() {
             if (isAdminLoggedIn) {
-                if (confirm("Apakah kamu ingin keluar dari Mode Admin?")) {
-                    isAdminLoggedIn = false;
-                    localStorage.removeItem('pgm_admin_logged_in');
-                    updateAdminUi();
-                    renderTabel();
-                }
+                isAdminLoggedIn = false;
+                localStorage.removeItem('pgm_admin_logged_in');
+                updateAdminUi();
+                renderTabel();
             } else {
-                const inputPin = prompt("Masukkan PIN Sandi Admin untuk mengonfirmasi pelunasan:");
-                if (inputPin === PIN_ADMIN) {
-                    isAdminLoggedIn = true;
-                    localStorage.setItem('pgm_admin_logged_in', 'true');
-                    alert("Berhasil masuk sebagai Admin!");
-                    updateAdminUi();
-                    renderTabel();
-                } else if (inputPin !== null) {
-                    alert("PIN Admin salah!");
-                }
+                document.getElementById('input-pin-admin').value = '';
+                document.getElementById('error-pin').classList.add('hidden');
+                const modal = document.getElementById('modal-login');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function tutupModalLogin() {
+            const modal = document.getElementById('modal-login');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function prosesLoginAdmin() {
+            const pinInput = document.getElementById('input-pin-admin').value;
+            if (pinInput === PIN_ADMIN) {
+                isAdminLoggedIn = true;
+                localStorage.setItem('pgm_admin_logged_in', 'true');
+                tutupModalLogin();
+                updateAdminUi();
+                renderTabel();
+            } else {
+                document.getElementById('error-pin').classList.remove('hidden');
             }
         }
 
@@ -308,16 +372,39 @@
         }
 
         function setLunasAdmin(keyId, nama, total) {
-            if (!isAdminLoggedIn) {
-                alert("Akses ditolak! Silakan Login Admin terlebih dahulu.");
-                return;
-            }
+            if (!isAdminLoggedIn) return;
+            database.ref('kasbon_list/' + keyId).update({
+                status: 'LUNAS'
+            });
+        }
 
-            if (confirm(`Konfirmasi bahwa kasbon atas nama "${nama}" sebesar Rp ${total.toLocaleString('id-ID')} SUDAH LUNAS?`)) {
-                database.ref('kasbon_list/' + keyId).update({
-                    status: 'LUNAS'
-                });
-            }
+        // FUNGSI REMOVE KASBON UNTUK ADMIN
+        function bukaModalHapusAdmin(keyId, nama) {
+            if (!isAdminLoggedIn) return;
+
+            idKasbonYangAkanDihapus = keyId;
+            document.getElementById('teks-hapus-kasbon').innerHTML = `Apakah kamu yakin ingin menghapus nota kasbon atas nama <strong>${nama}</strong> dari rekap server?`;
+            
+            const btnEksekusi = document.getElementById('btn-eksekusi-hapus');
+            btnEksekusi.onclick = function() {
+                if (idKasbonYangAkanDihapus) {
+                    database.ref('kasbon_list/' + idKasbonYangAkanDihapus).remove()
+                        .then(() => {
+                            tutupModalHapus();
+                        });
+                }
+            };
+
+            const modal = document.getElementById('modal-hapus');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function tutupModalHapus() {
+            idKasbonYangAkanDihapus = null;
+            const modal = document.getElementById('modal-hapus');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         kasbonRef.on('value', (snapshot) => {
@@ -413,6 +500,27 @@
                     statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">BELUM LUNAS</span>`;
                 }
 
+                let aksiButtons = `
+                    <button onclick="bukaModalLunas('${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
+                        <i class="fab fa-whatsapp"></i> WA
+                    </button>
+                `;
+
+                if (isAdminLoggedIn) {
+                    if (!isLunas) {
+                        aksiButtons += `
+                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Lunas">
+                                <i class="fas fa-check-circle"></i> Set Lunas
+                            </button>
+                        `;
+                    }
+                    aksiButtons += `
+                        <button onclick="bukaModalHapusAdmin('${item.keyId}', '${item.nama}')" class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/30 font-bold text-[11px] transition-all cursor-pointer" title="Hapus Data Kasbon">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                    `;
+                }
+
                 tr.innerHTML = `
                     <td class="p-3 text-slate-400 text-[11px]">${item.tanggal}</td>
                     <td class="p-3 font-bold ${isLewatJatuhTempo ? 'text-rose-400' : 'text-amber-400'} text-[11px]">${item.jatuhTempoStr || '-'}</td>
@@ -420,15 +528,8 @@
                     <td class="p-3 font-mono text-sky-400">${item.dana}</td>
                     <td class="p-3 font-extrabold text-emerald-400">Rp ${item.total.toLocaleString('id-ID')}</td>
                     <td class="p-3">${statusBadge}</td>
-                    <td class="p-3 text-center flex items-center justify-center gap-1">
-                        <button onclick="bukaModalLunas('${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
-                            <i class="fab fa-whatsapp"></i> WA
-                        </button>
-                        ${(!isLunas && isAdminLoggedIn) ? `
-                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Lunas">
-                                <i class="fas fa-check-circle"></i> Set Lunas
-                            </button>
-                        ` : ''}
+                    <td class="p-3 text-center flex items-center justify-center gap-1.5 flex-wrap">
+                        ${aksiButtons}
                     </td>
                 `;
                 tbody.appendChild(tr);
