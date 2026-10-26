@@ -1,4 +1,4 @@
-. <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -199,4 +199,259 @@
             projectId: "pgm-express",
             storageBucket: "pgm-express.firebasestorage.app",
             messagingSenderId: "851226580579",
-            appId: "1:851226580579:web:5e48a3d1d
+            appId: "1:851226580579:web:5e48a3d1d32957d2a28a56",
+            measurementId: "G-D6PMCZ9QSZ"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const kasbonRef = database.ref('kasbon_list');
+
+        const ADMIN_WA_NUMBER = "6283157787231";
+        const BIAYA_ADMIN = 10000;
+        const PIN_ADMIN = "065147";
+
+        let listKasbonGlobal = [];
+        let isAdminLoggedIn = false;
+
+        window.onload = function() {
+            if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
+                isAdminLoggedIn = true;
+                updateAdminUi();
+            }
+        };
+
+        function toggleLoginAdmin() {
+            if (isAdminLoggedIn) {
+                if (confirm("Apakah kamu ingin keluar dari Mode Admin?")) {
+                    isAdminLoggedIn = false;
+                    localStorage.removeItem('pgm_admin_logged_in');
+                    updateAdminUi();
+                    renderTabel();
+                }
+            } else {
+                const inputPin = prompt("Masukkan PIN Sandi Admin untuk mengonfirmasi pelunasan:");
+                if (inputPin === PIN_ADMIN) {
+                    isAdminLoggedIn = true;
+                    localStorage.setItem('pgm_admin_logged_in', 'true');
+                    alert("Berhasil masuk sebagai Admin!");
+                    updateAdminUi();
+                    renderTabel();
+                } else if (inputPin !== null) {
+                    alert("PIN Admin salah!");
+                }
+            }
+        }
+
+        function updateAdminUi() {
+            const btnLabel = document.getElementById('label-admin');
+            const statusMode = document.getElementById('status-mode-admin');
+            
+            if (isAdminLoggedIn) {
+                if (btnLabel) btnLabel.innerText = "Logout Admin";
+                if (statusMode) statusMode.classList.remove('hidden');
+            } else {
+                if (btnLabel) btnLabel.innerText = "Login Admin";
+                if (statusMode) statusMode.classList.add('hidden');
+            }
+        }
+
+        function hitungTotalAdmin() {
+            const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
+            const total = nominal > 0 ? nominal + BIAYA_ADMIN : 0;
+            document.getElementById('input-total').value = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function tambahKasbon(e) {
+            e.preventDefault();
+
+            const nama = document.getElementById('input-nama').value;
+            const dana = document.getElementById('input-dana').value;
+            const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
+            const total = nominal + BIAYA_ADMIN;
+            const catatan = document.getElementById('input-catatan').value || '-';
+            
+            const sekarang = new Date();
+            const tanggalPinjamStr = sekarang.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+
+            const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
+            const jatuhTempoStr = jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+
+            const newPostRef = kasbonRef.push();
+            newPostRef.set({
+                id: newPostRef.key,
+                tanggal: tanggalPinjamStr,
+                jatuhTempoIso: jatuhTempoDate.toISOString(),
+                jatuhTempoStr: jatuhTempoStr,
+                nama: nama,
+                dana: dana,
+                nominal: nominal,
+                total: total,
+                catatan: catatan,
+                status: 'BELUM LUNAS'
+            });
+
+            let msg = `*HALO ADMIN PGM EXPRESS, SAYA MAU KASBON / TOP UP DANA!* 💸\n\n`;
+            msg += `• *Nama Peminjam*: ${nama}\n`;
+            msg += `• *No. DANA*: ${dana}\n`;
+            msg += `• *Nominal Saldo*: Rp ${nominal.toLocaleString('id-ID')}\n`;
+            msg += `• *Biaya Admin*: Rp 10.000\n`;
+            msg += `• *TOTAL BAYAR*: *Rp ${total.toLocaleString('id-ID')}*\n`;
+            msg += `• *Jatuh Tempo*: *${jatuhTempoStr}* (Minimal 3 Hari)\n`;
+            msg += `• *Catatan*: ${catatan}\n\n`;
+            msg += `Mohon segera diproses ya min, terima kasih!`;
+
+            window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+
+            document.getElementById('form-kasbon').reset();
+            document.getElementById('input-total').value = "Rp 0";
+        }
+
+        function setLunasAdmin(keyId, nama, total) {
+            if (!isAdminLoggedIn) {
+                alert("Akses ditolak! Silakan Login Admin terlebih dahulu.");
+                return;
+            }
+
+            if (confirm(`Konfirmasi bahwa kasbon atas nama "${nama}" sebesar Rp ${total.toLocaleString('id-ID')} SUDAH LUNAS?`)) {
+                database.ref('kasbon_list/' + keyId).update({
+                    status: 'LUNAS'
+                });
+            }
+        }
+
+        kasbonRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            listKasbonGlobal = [];
+            
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    listKasbonGlobal.unshift({ keyId: key, ...data[key] });
+                });
+            }
+            renderTabel();
+        });
+
+        function renderPengingatPembeli() {
+            const banner = document.getElementById('banner-pengingat-pembeli');
+            const teks = document.getElementById('teks-pengingat-pembeli');
+            const btnWa = document.getElementById('btn-wa-pengingat');
+
+            if (!banner || !teks || !btnWa) return;
+
+            const kasbonBelumLunas = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS');
+            const sekarangIso = new Date().toISOString();
+
+            if (kasbonBelumLunas.length > 0) {
+                const terlama = kasbonBelumLunas[0];
+                const isLewat = terlama.jatuhTempoIso && (sekarangIso > terlama.jatuhTempoIso);
+
+                let isiPesan = `Halo kak <strong>${terlama.nama}</strong>, kamu memiliki tagihan kasbon sebesar <strong>Rp ${terlama.total.toLocaleString('id-ID')}</strong> (Batas waktu: <strong>${terlama.jatuhTempoStr}</strong>).`;
+                
+                if (isLewat) {
+                    isiPesan = `⚠️ <strong class="text-rose-400">PERHATIAN:</strong> Tagihan kasbon a.n <strong>${terlama.nama}</strong> sebesar <strong>Rp ${terlama.total.toLocaleString('id-ID')}</strong> sudah <strong class="text-rose-400">LEWAT JATUH TEMPO</strong>. Mohon segera melunasi!`;
+                }
+
+                teks.innerHTML = isiPesan;
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+
+                let msgWa = `*KIRIM BUKTI TRANSFER KASBON PGM EXPRESS* 📷\n\n`;
+                msgWa += `Halo Admin, saya mau mengirimkan foto bukti transfer pembayaran tagihan kasbon a.n *${terlama.nama}* sebesar *Rp ${terlama.total.toLocaleString('id-ID')}*.\n\n`;
+                msgWa += `Berikut bukti TF nya min:`;
+
+                btnWa.onclick = function() {
+                    window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
+                };
+            } else {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById('tabel-body-kasbon');
+            const notifBadge = document.getElementById('admin-notif-badge');
+            const notifCount = document.getElementById('notif-count');
+            
+            if (!tbody) return;
+
+            renderPengingatPembeli();
+
+            const kasbonBelumLunasCount = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS').length;
+            if (notifCount) notifCount.innerText = kasbonBelumLunasCount;
+            if (notifBadge) {
+                if (kasbonBelumLunasCount > 0) notifBadge.classList.remove('hidden');
+                else notifBadge.classList.add('hidden');
+            }
+
+            if (listKasbonGlobal.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-slate-500 italic text-xs">Belum ada transaksi kasbon tersimpan di server.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            const sekarangIso = new Date().toISOString();
+
+            listKasbonGlobal.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition-colors";
+
+                const isLunas = item.status === 'LUNAS';
+                const isLewatJatuhTempo = !isLunas && item.jatuhTempoIso && (sekarangIso > item.jatuhTempoIso);
+
+                let statusBadge = "";
+                if (isLunas) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LUNAS</span>`;
+                } else if (isLewatJatuhTempo) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse">LEWAT JATUH TEMPO</span>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">BELUM LUNAS</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-400 text-[11px]">${item.tanggal}</td>
+                    <td class="p-3 font-bold ${isLewatJatuhTempo ? 'text-rose-400' : 'text-amber-400'} text-[11px]">${item.jatuhTempoStr || '-'}</td>
+                    <td class="p-3 font-bold text-white">${item.nama}</td>
+                    <td class="p-3 font-mono text-sky-400">${item.dana}</td>
+                    <td class="p-3 font-extrabold text-emerald-400">Rp ${item.total.toLocaleString('id-ID')}</td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3 text-center flex items-center justify-center gap-1">
+                        <button onclick="bukaModalLunas('${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
+                            <i class="fab fa-whatsapp"></i> WA
+                        </button>
+                        ${(!isLunas && isAdminLoggedIn) ? `
+                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Lunas">
+                                <i class="fas fa-check-circle"></i> Set Lunas
+                            </button>
+                        ` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function bukaModalLunas(nama, total) {
+            let msgWa = `*KIRIM BUKTI TRANSFER KASBON PGM EXPRESS* 📷\n\n`;
+            msgWa += `Halo Admin, saya mau mengirimkan foto bukti transfer pembayaran tagihan kasbon a.n *${nama}* sebesar *Rp ${total.toLocaleString('id-ID')}*.\n\n`;
+            msgWa += `Berikut bukti TF nya min:`;
+
+            document.getElementById('btn-kirim-bukti-wa').href = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`;
+
+            const modal = document.getElementById('modal-bukti');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function tutupModalBukti() {
+            const modal = document.getElementById('modal-bukti');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
+</body>
+</html>
