@@ -38,7 +38,6 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- BADGE NOTIFIKASI ADMIN -->
                 <div id="admin-notif-badge" class="relative hidden sm:flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl">
                     <i class="fas fa-bell text-amber-400 animate-bounce text-xs"></i>
                     <span class="text-xs font-bold text-slate-200">Kasbon Masuk: <strong id="notif-count" class="text-sky-400">0</strong></span>
@@ -53,10 +52,28 @@
     </header>
 
     <!-- MAIN CONTAINER -->
-    <main class="max-w-6xl mx-auto px-4 py-8 space-y-10 flex-1 w-full">
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-8 flex-1 w-full">
+
+        <!-- BANNER PENGINGAT HUTANG UNTUK PEMBELI -->
+        <div id="banner-pengingat-pembeli" class="hidden bg-rose-900/40 border-2 border-rose-500/60 p-5 rounded-2xl flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xl animate-pulse">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-lg flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black text-rose-300 uppercase tracking-wider">Pemberitahuan Tagihan Kasbon!</h3>
+                    <p id="teks-pengingat-pembeli" class="text-xs text-slate-200 mt-0.5 leading-relaxed">
+                        Kamu memiliki tagihan kasbon yang belum dilunasi. Mohon segera melunasi sebelum jatuh tempo.
+                    </p>
+                </div>
+            </div>
+            <button id="btn-wa-pengingat" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all whitespace-nowrap">
+                <i class="fab fa-whatsapp text-sm"></i> Konfirmasi Bayar ke WA
+            </button>
+        </div>
 
         <!-- POPUP ALERT NOTIFIKASI KASBON MASUK KE ADMIN -->
-        <div id="toast-notif-admin" class="hidden bg-sky-500/20 border border-sky-500/40 p-4 rounded-2xl items-center justify-between transition-all animate-pulse">
+        <div id="toast-notif-admin" class="hidden bg-sky-500/20 border border-sky-500/40 p-4 rounded-2xl items-center justify-between transition-all">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-sky-500 text-slate-950 flex items-center justify-center font-bold">
                     <i class="fas fa-bell"></i>
@@ -77,7 +94,7 @@
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="fas fa-hand-holding-usd text-sky-400"></i> Form Pengajuan Kasbon / Top Up DANA
                 </h2>
-                <p class="text-xs text-slate-400 mt-1">Biaya admin Rp 5.000 per transaksi. Batas waktu pelunasan otomatis <strong>3 Hari (H+3)</strong>.</p>
+                <p class="text-xs text-slate-400 mt-1">Biaya admin Rp 10.000 per transaksi. Batas waktu pelunasan otomatis <strong>3 Hari (H+3)</strong>.</p>
             </div>
 
             <form id="form-kasbon" onsubmit="tambahKasbon(event)" class="space-y-4">
@@ -98,7 +115,7 @@
                         <input type="number" id="input-nominal" required min="5000" placeholder="Contoh: 50000" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500" oninput="hitungTotalAdmin()">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 5.000)</label>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 10.000)</label>
                         <input type="text" id="input-total" readonly value="Rp 0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-sky-400 font-bold cursor-not-allowed">
                     </div>
                 </div>
@@ -143,7 +160,6 @@
                         </tr>
                     </thead>
                     <tbody id="tabel-body-kasbon" class="divide-y divide-slate-800">
-                        <!-- Data otomatis diisi oleh JS -->
                     </tbody>
                 </table>
             </div>
@@ -156,31 +172,41 @@
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-camera text-sky-400"></i> Upload Bukti Pembayaran
+                    <i class="fas fa-camera text-sky-400"></i> Upload / Kirim Bukti TF
                 </h3>
                 <button onclick="tutupModalBukti()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
 
             <p class="text-xs text-slate-400 leading-relaxed">
-                Wajib memilih atau mengunggah foto bukti struk/transfer sebelum mengubah status transaksi menjadi <strong class="text-emerald-400">LUNAS</strong>.
+                Pilih opsi di bawah ini untuk mengirimkan bukti transfer ke Admin via WhatsApp atau simpan foto bukti di sistem:
             </p>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Pilih File Foto Bukti / Nota</label>
-                <input type="file" id="input-foto-file" accept="image/*" class="w-full text-xs text-slate-300 bg-slate-800 p-2.5 rounded-xl border border-slate-700 cursor-pointer">
-            </div>
+            <div class="space-y-3">
+                <a id="btn-kirim-bukti-wa" href="#" target="_blank" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all">
+                    <i class="fab fa-whatsapp text-base"></i> Kirim Bukti Transfer via WhatsApp Admin
+                </a>
 
-            <!-- PREVIEW FOTO -->
-            <div id="box-preview-foto" class="hidden space-y-2">
-                <span class="text-[10px] text-slate-400 uppercase font-bold">Preview Bukti Nota:</span>
-                <img id="img-preview" src="" class="w-full h-48 object-cover rounded-xl border border-slate-700">
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-3 text-[10px] text-slate-500 font-bold uppercase">Atau simpan foto nota di sistem</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+
+                <div>
+                    <input type="file" id="input-foto-file" accept="image/*" class="w-full text-xs text-slate-300 bg-slate-800 p-2.5 rounded-xl border border-slate-700 cursor-pointer">
+                </div>
+
+                <div id="box-preview-foto" class="hidden space-y-2">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold">Preview Bukti Nota:</span>
+                    <img id="img-preview" src="" class="w-full h-40 object-cover rounded-xl border border-slate-700">
+                </div>
             </div>
 
             <div class="flex gap-3 pt-2">
                 <button type="button" onclick="tutupModalBukti()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700">
                     Batal
                 </button>
-                <button type="button" onclick="prosesSimpanLunas()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all">
+                <button type="button" onclick="prosesSimpanLunas()" class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition-all">
                     Simpan & Set LUNAS
                 </button>
             </div>
@@ -201,13 +227,14 @@
     <!-- JAVASCRIPT SYSTEM UTUH -->
     <script>
         const ADMIN_WA_NUMBER = "6285786457121"; // Nomor WA Admin
+        const BIAYA_ADMIN = 10000; // Admin Rp 10.000
         let listKasbon = JSON.parse(localStorage.getItem('pgm_kasbon_data')) || [];
         let activeIndexLunas = null;
         let tempFotoBase64 = "";
 
         function hitungTotalAdmin() {
             const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
-            const total = nominal > 0 ? nominal + 5000 : 0;
+            const total = nominal > 0 ? nominal + BIAYA_ADMIN : 0;
             document.getElementById('input-total').value = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
@@ -217,13 +244,12 @@
             const nama = document.getElementById('input-nama').value;
             const dana = document.getElementById('input-dana').value;
             const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
-            const total = nominal + 5000;
+            const total = nominal + BIAYA_ADMIN;
             const catatan = document.getElementById('input-catatan').value || '-';
             
             const sekarang = new Date();
             const tanggalPinjamStr = sekarang.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
 
-            // Hitung Otomatis Jatuh Tempo 3 Hari (H+3)
             const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
             const jatuhTempoStr = jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
 
@@ -244,15 +270,13 @@
             listKasbon.unshift(itemBaru);
             simpanDanRender();
 
-            // PICU NOTIFIKASI ADMIN
             tampilkanNotifAdmin(nama, total);
 
-            // Format Pesan WhatsApp Ke Admin
             let msg = `*HALO ADMIN PGM EXPRESS, SAYA MAU KASBON / TOP UP DANA!* 💸\n\n`;
             msg += `• *Nama Peminjam*: ${nama}\n`;
             msg += `• *No. DANA*: ${dana}\n`;
             msg += `• *Nominal Saldo*: Rp ${nominal.toLocaleString('id-ID')}\n`;
-            msg += `• *Biaya Admin*: Rp 5.000\n`;
+            msg += `• *Biaya Admin*: Rp 10.000\n`;
             msg += `• *TOTAL BAYAR*: *Rp ${total.toLocaleString('id-ID')}*\n`;
             msg += `• *Jatuh Tempo*: *${jatuhTempoStr}* (Minimal 3 Hari)\n`;
             msg += `• *Catatan*: ${catatan}\n\n`;
@@ -260,7 +284,6 @@
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 
-            // Reset form
             document.getElementById('form-kasbon').reset();
             document.getElementById('input-total').value = "Rp 0";
         }
@@ -276,6 +299,43 @@
             }
         }
 
+        function renderPengingatPembeli() {
+            const banner = document.getElementById('banner-pengingat-pembeli');
+            const teks = document.getElementById('teks-pengingat-pembeli');
+            const btnWa = document.getElementById('btn-wa-pengingat');
+
+            if (!banner || !teks || !btnWa) return;
+
+            const kasbonBelumLunas = listKasbon.filter(k => k.status === 'BELUM LUNAS');
+            const sekarangIso = new Date().toISOString();
+
+            if (kasbonBelumLunas.length > 0) {
+                const terlama = kasbonBelumLunas[0];
+                const isLewat = terlama.jatuhTempoIso && (sekarangIso > terlama.jatuhTempoIso);
+
+                let isiPesan = `Halo kak <strong>${terlama.nama}</strong>, kamu memiliki tagihan kasbon sebesar <strong>Rp ${terlama.total.toLocaleString('id-ID')}</strong> (Batas waktu: <strong>${terlama.jatuhTempoStr}</strong>).`;
+                
+                if (isLewat) {
+                    isiPesan = `⚠️ <strong class="text-rose-400">PERHATIAN:</strong> Tagihan kasbon a.n <strong>${terlama.nama}</strong> sebesar <strong>Rp ${terlama.total.toLocaleString('id-ID')}</strong> sudah <strong class="text-rose-400">LEWAT JATUH TEMPO</strong>. Mohon segera melunasi!`;
+                }
+
+                teks.innerHTML = isiPesan;
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+
+                let msgWa = `*KONFIRMASI PEMBAYARAN KASBON PGM EXPRESS* 💳\n\n`;
+                msgWa += `Halo Admin, saya mau mengonfirmasi/mengirimkan foto bukti transfer pembayaran tagihan kasbon a.n *${terlama.nama}* sebesar *Rp ${terlama.total.toLocaleString('id-ID')}*.\n\n`;
+                msgWa += `Berikut saya lampirkan foto bukti transfernya ya min. Terima kasih!`;
+
+                btnWa.onclick = function() {
+                    window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
+                };
+            } else {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+        }
+
         function renderTabel() {
             const tbody = document.getElementById('tabel-body-kasbon');
             const notifBadge = document.getElementById('admin-notif-badge');
@@ -283,11 +343,12 @@
             
             if (!tbody) return;
 
-            // Update Counter Admin
-            const kasbonBelumLunas = listKasbon.filter(k => k.status === 'BELUM LUNAS').length;
-            if (notifCount) notifCount.innerText = kasbonBelumLunas;
+            renderPengingatPembeli();
+
+            const kasbonBelumLunasCount = listKasbon.filter(k => k.status === 'BELUM LUNAS').length;
+            if (notifCount) notifCount.innerText = kasbonBelumLunasCount;
             if (notifBadge) {
-                if (kasbonBelumLunas > 0) notifBadge.classList.remove('hidden');
+                if (kasbonBelumLunasCount > 0) notifBadge.classList.remove('hidden');
             }
 
             if (listKasbon.length === 0) {
@@ -341,12 +402,18 @@
             });
         }
 
-        // BUKA MODAL DAN HANDLE UPLOAD FOTO
         function bukaModalLunas(index) {
             activeIndexLunas = index;
             tempFotoBase64 = "";
             document.getElementById('input-foto-file').value = "";
             document.getElementById('box-preview-foto').classList.add('hidden');
+
+            const item = listKasbon[index];
+            let msgWa = `*KIRIM BUKTI TRANSFER KASBON PGM EXPRESS* 📷\n\n`;
+            msgWa += `Halo Admin, saya mau mengirimkan bukti transfer pembayaran kasbon a.n *${item.nama}* sebesar *Rp ${item.total.toLocaleString('id-ID')}*.\n\n`;
+            msgWa += `Berikut foto bukti TF nya min:`;
+
+            document.getElementById('btn-kirim-bukti-wa').href = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`;
 
             const modal = document.getElementById('modal-bukti');
             modal.classList.remove('hidden');
@@ -368,7 +435,7 @@
 
         function prosesSimpanLunas() {
             if (!tempFotoBase64) {
-                alert("Harap pilih / upload foto bukti pembayaran/nota terlebih dahulu!");
+                alert("Harap pilih / upload foto bukti pembayaran/nota terlebih dahulu jika ingin menyimpan foto di sistem!");
                 return;
             }
 
@@ -377,13 +444,13 @@
 
             simpanDanRender();
             tutupModalBukti();
-            alert("Status kasbon berhasil diubah menjadi LUNAS beserta bukti fotonya!");
+            alert("Status kasbon berhasil diubah menjadi LUNAS!");
         }
 
         function lihatFotoBukti(index) {
             const foto = listKasbon[index].buktiFoto;
             if (!foto) {
-                alert("Bukti foto nota tidak ditemukan.");
+                alert("Bukti foto nota tidak tersimpan di browser ini.");
                 return;
             }
 
