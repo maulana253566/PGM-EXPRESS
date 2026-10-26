@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DANA Express - Top Up & Kasbon Digital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .dana-blue {
+            background-color: #118EEA;
+        }
+        .dana-blue-dark {
+            background-color: #0d72bc;
+        }
+        .text-dana {
+            color: #118EEA;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="dana-blue text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-blue-500 font-extrabold px-2 py-1 rounded-md text-xl tracking-wider shadow">
+                    DANA
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">PGM Express Store</h1>
+                    <p class="text-xs text-blue-100">Top Up Instan & Kasbon Digital</p>
+                </div>
+            </div>
+            <a href="https://wa.me/6285786457121" target="_blank" class="bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1 transition">
+                <i class="fab font-bold fa-whatsapp text-green-300"></i>
+                <span class="font-medium">085786457121</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 space-y-6">
+
+        <!-- Banner Notifikasi Tagihan Pembeli (Ditampilkan jika ada kasbon aktif) -->
+        <div id="buyerBillNotification" class="hidden bg-red-500 text-white p-4 rounded-xl shadow-lg relative overflow-hidden animate-pulse">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white text-red-500 p-3 rounded-full shadow">
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">Perhatian: Anda Memiliki Tagihan Kasbon!</h3>
+                        <p id="billDetailText" class="text-xs text-red-100 mt-1">Harap segera melunasi sebelum jatuh tempo.</p>
+                    </div>
+                </div>
+                <button onclick="closeBillNotification()" class="text-white hover:text-red-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mt-3 flex gap-2">
+                <button onclick="payActiveBill()" class="bg-white text-red-600 font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-red-50 transition shadow">
+                    <i class="fab fa-whatsapp mr-1"></i> Konfirmasi Bayar ke Admin
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Pemesanan -->
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
+            <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800 border-b pb-2">
+                <i class="fas fa-mobile-alt text-dana"></i> Form Pengisian Saldo DANA
+            </h2>
+
+            <form id="orderForm" onsubmit="handleOrderSubmit(event)" class="space-y-4">
+                <!-- Input Nomor DANA -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nomor DANA Tujuan</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-phone"></i>
+                        </span>
+                        <input type="tel" id="danaNumber" placeholder="08xxxxxxxxxx" required
+                            class="w-full pl-10 pr-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-base font-medium">
+                    </div>
+                </div>
+
+                <!-- Nominal DANA -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Pilih Nominal DANA</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+                        <button type="button" onclick="selectNominal(10000, this)" class="nominal-btn border rounded-xl p-3 text-center font-bold hover:border-blue-500 transition">
+                            Rp 10.000
+                        </button>
+                        <button type="button" onclick="selectNominal(20000, this)" class="nominal-btn border rounded-xl p-3 text-center font-bold hover:border-blue-500 transition">
+                            Rp 20.000
+                        </button>
+                        <button type="button" onclick="selectNominal(50000, this)" class="nominal-btn border rounded-xl p-3 text-center font-bold hover:border-blue-500 transition">
+                            Rp 50.000
+                        </button>
+                        <button type="button" onclick="selectNominal(100000, this)" class="nominal-btn border rounded-xl p-3 text-center font-bold hover:border-blue-500 transition">
+                            Rp 100.000
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">Rp</span>
+                        <input type="number" id="customNominal" placeholder="Atau ketik nominal manual (Min 5.000)" oninput="handleCustomNominal()"
+                            class="w-full pl-10 pr-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    </div>
+                </div>
+
+                <!-- Metode Pembayaran & Biaya Admin -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Metode Pembayaran</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="paymentMethod" value="DIRECT" checked onchange="togglePaymentMethod()" class="peer hidden">
+                            <div class="border-2 rounded-xl p-3 text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 transition">
+                                <i class="fas fa-bolt text-amber-500 mb-1"></i>
+                                <div class="font-bold text-sm">Bayar Langsung</div>
+                                <div class="text-xs text-green-600 font-medium">Admin: Rp 3.000</div>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer">
+                            <input type="radio" name="paymentMethod" value="KASBON" onchange="togglePaymentMethod()" class="peer hidden">
+                            <div class="border-2 rounded-xl p-3 text-center peer-checked:border-red-500 peer-checked:bg-red-50 transition">
+                                <i class="fas fa-clock text-red-500 mb-1"></i>
+                                <div class="font-bold text-sm">Hutang / Kasbon</div>
+                                <div class="text-xs text-red-600 font-medium">Admin: Rp 10.000</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Input Tambahan Khusus Kasbon -->
+                <div id="kasbonFields" class="hidden space-y-3 bg-red-50 p-4 rounded-xl border border-red-200">
+                    <h4 class="font-bold text-red-700 text-xs uppercase flex items-center gap-1">
+                        <i class="fas fa-user-edit"></i> Form Identitas Kasbon
+                    </h4>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">Nama Pemohon Kasbon</label>
+                        <input type="text" id="buyerName" placeholder="Nama Lengkap Anda"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">Janjikan Tanggal Jatuh Tempo</label>
+                        <input type="date" id="dueDate" class="w-full px-3 py-2 border rounded-lg focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">Catatan Tambahan (Opsional)</label>
+                        <input type="text" id="kasbonNote" placeholder="Alasan / Pesan ke admin"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none text-sm">
+                    </div>
+                </div>
+
+                <!-- Ringkasan Rincian Biaya -->
+                <div class="bg-gray-50 p-4 rounded-xl space-y-2 border">
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>Nominal DANA:</span>
+                        <span id="summaryNominal" class="font-semibold">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>Biaya Admin:</span>
+                        <span id="summaryAdmin" class="font-semibold text-green-600">Rp 3.000</span>
+                    </div>
+                    <div class="border-t pt-2 flex justify-between font-bold text-base text-gray-800">
+                        <span>Total Bayar:</span>
+                        <span id="summaryTotal" class="text-dana">Rp 3.000</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full dana-blue hover:dana-blue-dark text-white font-bold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Kirim Pesanan Sekarang
+                </button>
+            </form>
+        </div>
+
+        <!-- Panel Admin & Catatan Buku Kasbon -->
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-lg font-bold flex items-center gap-2 text-gray-800">
+                    <i class="fas fa-book-open text-dana"></i> Buku Kasbon & Riwayat Admin
+                </h2>
+                <span id="adminBadge" class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                    Admin Contact: 085786457121
+                </span>
+            </div>
+
+            <!-- Ringkasan Statistik -->
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
+                    <div class="text-xs text-blue-600 font-medium">Total Pesanan</div>
+                    <div id="statTotalOrders" class="text-lg font-extrabold text-blue-800">0</div>
+                </div>
+                <div class="bg-red-50 p-3 rounded-xl border border-red-100 text-center">
+                    <div class="text-xs text-red-600 font-medium">Kasbon Aktif</div>
+                    <div id="statActiveKasbon" class="text-lg font-extrabold text-red-800">0</div>
+                </div>
+                <div class="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
+                    <div class="text-xs text-green-600 font-medium">Lunas</div>
+                    <div id="statPaidKasbon" class="text-lg font-extrabold text-green-800">0</div>
+                </div>
+            </div>
+
+            <!-- Tabel Data Kasbon -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-600">
+                    <thead class="bg-gray-100 text-gray-700 font-semibold uppercase">
+                        <tr>
+                            <th class="p-2.5">Tanggal</th>
+                            <th class="p-2.5">Pembeli</th>
+                            <th class="p-2.5">No DANA</th>
+                            <th class="p-2.5">Total</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody" class="divide-y">
+                        <!-- Transaksi diinject lewat JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Receipt / Nota Pemesanan -->
+    <div id="receiptModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl relative space-y-4">
+            <button onclick="closeReceiptModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="text-center">
+                <div class="inline-block bg-blue-100 text-dana p-3 rounded-full mb-2">
+                    <i class="fas fa-receipt text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800 text-lg">Nota Rincian Transaksi</h3>
+                <p id="receiptDate" class="text-xs text-gray-400">26 Okt 2026</p>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl space-y-2 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Metode Bayar:</span>
+                    <span id="receiptMethod" class="font-bold">Kasbon</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Nama Pembeli:</span>
+                    <span id="receiptBuyer" class="font-bold">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">No. DANA Tujuan:</span>
+                    <span id="receiptDanaNumber" class="font-bold text-blue-600">08xxx</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Nominal DANA:</span>
+                    <span id="receiptNominal" class="font-bold">Rp 0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Biaya Admin:</span>
+                    <span id="receiptAdminFee" class="font-bold">Rp 0</span>
+                </div>
+                <div id="receiptDueDateRow" class="flex justify-between text-red-600 font-bold hidden">
+                    <span>Jatuh Tempo:</span>
+                    <span id="receiptDueDate">-</span>
+                </div>
+                <div class="border-t pt-2 flex justify-between font-bold text-sm text-gray-800">
+                    <span>Total Tagihan:</span>
+                    <span id="receiptTotal" class="text-dana">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <a id="waSendBtn" href="#" target="_blank" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-center text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fab fa-whatsapp text-lg"></i> Kirim Nota ke Admin (085786457121)
+                </a>
+                <button onclick="closeReceiptModal()" class="w-full bg-gray-200 text-gray-700 font-semibold py-2 rounded-xl text-xs hover:bg-gray-300">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-10 py-4 text-center text-xs text-gray-500">
+        <p>© 2026 DANA Express Store. Kontak WA Admin: <strong>085786457121</strong></p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const ADMIN_WA_NUMBER = "6285786457121";
+        const FEE_DIRECT = 3000;
+        const FEE_KASBON = 10000;
+
+        let selectedNominal = 0;
+        let transactions = JSON.parse(localStorage.getItem('dana_transactions')) || [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateSummary();
+            renderTable();
+            checkActiveKasbonForBuyer();
+        });
+
+        function selectNominal(amount, btnElement) {
+            selectedNominal = amount;
+            document.getElementById('customNominal').value = '';
+            
+            document.querySelectorAll('.nominal-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-600');
+            });
+            if (btnElement) {
+                btnElement.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-600');
+            }
+            updateSummary();
+        }
+
+        function handleCustomNominal() {
+            const val = parseInt(document.getElementById('customNominal').value) || 0;
+            selectedNominal = val;
+            document.querySelectorAll('.nominal-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-600');
+            });
+            updateSummary();
+        }
+
+        function togglePaymentMethod() {
+            const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const kasbonFields = document.getElementById('kasbonFields');
+            if (method === 'KASBON') {
+                kasbonFields.classList.remove('hidden');
+            } else {
+                kasbonFields.classList.add('hidden');
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const adminFee = (method === 'KASBON') ? FEE_KASBON : FEE_DIRECT;
+            const total = selectedNominal + adminFee;
+
+            document.getElementById('summaryNominal').innerText = 'Rp ' + selectedNominal.toLocaleString('id-ID');
+            document.getElementById('summaryAdmin').innerText = 'Rp ' + adminFee.toLocaleString('id-ID');
+            document.getElementById('summaryTotal').innerText = 'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        function handleOrderSubmit(event) {
+            event.preventDefault();
+
+            const danaNumber = document.getElementById('danaNumber').value;
+            const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const adminFee = (method === 'KASBON') ? FEE_KASBON : FEE_DIRECT;
+            const total = selectedNominal + adminFee;
+
+            if (selectedNominal < 5000) {
+                alert('Nominal top up DANA minimal Rp 5.000');
+                return;
+            }
+
+            let buyerName = "Pelanggan";
+            let dueDate = "-";
+            let kasbonNote = "";
+
+            if (method === 'KASBON') {
+                buyerName = document.getElementById('buyerName').value.trim();
+                dueDate = document.getElementById('dueDate').value;
+                kasbonNote = document.getElementById('kasbonNote').value;
+
+                if (!buyerName) {
+                    alert('Mohon isi nama lengkap untuk permohonan Kasbon!');
+                    return;
+                }
+                if (!dueDate) {
+                    alert('Mohon pilih tanggal jatuh tempo kasbon!');
+                    return;
+                }
+            }
+
+            const transactionObj = {
+                id: 'TRX-' + Date.now(),
+                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+                danaNumber: danaNumber,
+                nominal: selectedNominal,
+                adminFee: adminFee,
+                total: total,
+                method: method,
+                buyerName: buyerName,
+                dueDate: dueDate,
+                note: kasbonNote,
+                status: method === 'KASBON' ? 'UNPAID' : 'DIRECT_PAID'
+            };
+
+            transactions.unshift(transactionObj);
+            localStorage.setItem('dana_transactions', JSON.stringify(transactions));
+
+            showReceipt(transactionObj);
+            renderTable();
+            checkActiveKasbonForBuyer();
+        }
+
+        function showReceipt(trx) {
+            document.getElementById('receiptDate').innerText = trx.date;
+            document.getElementById('receiptMethod').innerText = trx.method === 'KASBON' ? 'Hutang / Kasbon' : 'Bayar Langsung';
+            document.getElementById('receiptBuyer').innerText = trx.buyerName;
+            document.getElementById('receiptDanaNumber').innerText = trx.danaNumber;
+            document.getElementById('receiptNominal').innerText = 'Rp ' + trx.nominal.toLocaleString('id-ID');
+            document.getElementById('receiptAdminFee').innerText = 'Rp ' + trx.adminFee.toLocaleString('id-ID');
+            document.getElementById('receiptTotal').innerText = 'Rp ' + trx.total.toLocaleString('id-ID');
+
+            const dueDateRow = document.getElementById('receiptDueDateRow');
+            if (trx.method === 'KASBON') {
+                dueDateRow.classList.remove('hidden');
+                document.getElementById('receiptDueDate').innerText = trx.dueDate;
+            } else {
+                dueDateRow.classList.add('hidden');
+            }
+
+            // WhatsApp Message Text
+            let message = `Halo Admin DANA Express (085786457121),%0A%0ASaya ingin konfirmasi pemesanan DANA:%0A- *Nomor DANA:* ${trx.danaNumber}%0A- *Nominal:* Rp ${trx.nominal.toLocaleString('id-ID')}%0A- *Biaya Admin:* Rp ${trx.adminFee.toLocaleString('id-ID')}%0A- *Total Bayar:* Rp ${trx.total.toLocaleString('id-ID')}%0A- *Metode:* ${trx.method === 'KASBON' ? 'Hutang / Kasbon (Admin Rp 10rb)' : 'Bayar Langsung (Admin Rp 3rb)'}`;
+            
+            if (trx.method === 'KASBON') {
+                message += `%0A- *Nama Pemohon:* ${trx.buyerName}%0A- *Jatuh Tempo:* ${trx.dueDate}`;
+            }
+
+            document.getElementById('waSendBtn').href = `https://wa.me/${ADMIN_WA_NUMBER}?text=${message}`;
+            document.getElementById('receiptModal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+
+        function checkActiveKasbonForBuyer() {
+            const activeKasbon = transactions.find(t => t.method === 'KASBON' && t.status === 'UNPAID');
+            const notifBox = document.getElementById('buyerBillNotification');
+            
+            if (activeKasbon) {
+                notifBox.classList.remove('hidden');
+                document.getElementById('billDetailText').innerHTML = 
+                    `Atas Nama: <b>${activeKasbon.buyerName}</b> | Tagihan: <b>Rp ${activeKasbon.total.toLocaleString('id-ID')}</b> (Nominal DANA: Rp ${activeKasbon.nominal.toLocaleString('id-ID')} + Admin Kasbon: Rp 10.000) | Jatuh Tempo: <b>${activeKasbon.dueDate}</b>`;
+            } else {
+                notifBox.classList.add('hidden');
+            }
+        }
+
+        function closeBillNotification() {
+            document.getElementById('buyerBillNotification').classList.add('hidden');
+        }
+
+        function payActiveBill() {
+            const activeKasbon = transactions.find(t => t.method === 'KASBON' && t.status === 'UNPAID');
+            if (!activeKasbon) return;
+
+            const text = `Halo Admin DANA Express (085786457121), saya *${activeKasbon.buyerName}* mau konfirmasi pelunasan tagihan kasbon sebesar *Rp ${activeKasbon.total.toLocaleString('id-ID')}*. Mohon kirimkan rekening/DANA pembayaran. Terima kasih!`;
+            window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function markAsPaid(id) {
+            transactions = transactions.map(t => {
+                if (t.id === id) t.status = 'PAID';
+                return t;
+            });
+            localStorage.setItem('dana_transactions', JSON.stringify(transactions));
+            renderTable();
+            checkActiveKasbonForBuyer();
+        }
+
+        function sendWATagihan(id) {
+            const trx = transactions.find(t => t.id === id);
+            if (!trx) return;
+
+            const text = `Halo ${trx.buyerName}, ini pengingat tagihan Kasbon DANA dari DANA Express Store.%0A%0ARincian Tagihan:%0A- Nominal DANA: Rp ${trx.nominal.toLocaleString('id-ID')}%0A- Biaya Admin Kasbon: Rp 10.000%0A- *Total Tagihan:* Rp ${trx.total.toLocaleString('id-ID')}%0A- Jatuh Tempo: ${trx.dueDate}%0A%0AHarap segera melunasi pembayaran ya. Terima kasih!`;
+            window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${text}`, '_blank');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('transactionTableBody');
+            tbody.innerHTML = '';
+
+            let totalOrders = transactions.length;
+            let activeKasbon = 0;
+            let paidKasbon = 0;
+
+            if (transactions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-400">Belum ada catatan transaksi.</td></tr>`;
+            }
+
+            transactions.forEach(t => {
+                if (t.method === 'KASBON') {
+                    if (t.status === 'UNPAID') activeKasbon++;
+                    if (t.status === 'PAID') paidKasbon++;
+                }
+
+                let statusBadge = '';
+                if (t.method === 'DIRECT') {
+                    statusBadge = `<span class="bg-gray-100 text-gray-700 font-bold px-2 py-0.5 rounded text-[10px]">LUNAS (DIRECT)</span>`;
+                } else if (t.status === 'UNPAID') {
+                    statusBadge = `<span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded text-[10px]">BELUM LUNAS</span>`;
+                } else {
+                    statusBadge = `<span class="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded text-[10px]">LUNAS KASBON</span>`;
+                }
+
+                let actionBtns = '-';
+                if (t.method === 'KASBON' && t.status === 'UNPAID') {
+                    actionBtns = `
+                        <div class="flex gap-1 justify-center">
+                            <button onclick="markAsPaid('${t.id}')" title="Tandai Lunas" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                Lunas
+                            </button>
+                            <button onclick="sendWATagihan('${t.id}')" title="Kirim Pengingat Tagihan WA" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                Tagih
+                            </button>
+                        </div>
+                    `;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5 whitespace-nowrap">${t.date}</td>
+                    <td class="p-2.5 font-medium text-gray-800">${t.buyerName}</td>
+                    <td class="p-2.5 font-mono text-blue-600">${t.danaNumber}</td>
+                    <td class="p-2.5 font-bold">Rp ${t.total.toLocaleString('id-ID')}</td>
+                    <td class="p-2.5">${statusBadge}</td>
+                    <td class="p-2.5 text-center">${actionBtns}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('statTotalOrders').innerText = totalOrders;
+            document.getElementById('statActiveKasbon').innerText = activeKasbon;
+            document.getElementById('statPaidKasbon').innerText = paidKasbon;
+        }
+    </script>
+</body>
+</html>
