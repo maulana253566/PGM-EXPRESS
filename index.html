@@ -48,6 +48,12 @@
                     <span class="text-xs font-bold text-slate-200">Kasbon Masuk: <strong id="notif-count" class="text-sky-400">0</strong></span>
                 </div>
 
+                <!-- TOMBOL LOGIN / LOGOUT ADMIN -->
+                <button id="btn-login-admin" onclick="toggleLoginAdmin()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
+                    <i class="fas fa-user-shield text-sky-400"></i>
+                    <span id="label-admin">Login Admin</span>
+                </button>
+
                 <a href="https://wa.me/6283157787231" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all">
                     <i class="fab fa-whatsapp text-sm"></i>
                     <span>Admin WA</span>
@@ -129,6 +135,9 @@
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Terhubung langsung secara otomatis (Real-Time Database).</p>
                 </div>
+                <div id="status-mode-admin" class="hidden px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center gap-1.5 self-start sm:self-auto">
+                    <i class="fas fa-check-circle"></i> Mode Admin Aktif
+                </div>
             </div>
 
             <div class="overflow-x-auto no-scrollbar">
@@ -183,7 +192,6 @@
 
     <!-- SCRIPT FIREBASE & SISTEM REALTIME -->
     <script>
-        // Konfigurasi Firebase dari Proyek PGM Express milikmu
         const firebaseConfig = {
             apiKey: "AIzaSyAm-kLBcojA_-mIuyo34Vnt9T7Oo_2jR0A",
             authDomain: "pgm-express.firebaseapp.com",
@@ -195,14 +203,58 @@
             measurementId: "G-D6PMCZ9QSZ"
         };
 
-        // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const kasbonRef = database.ref('kasbon_list');
 
         const ADMIN_WA_NUMBER = "6283157787231";
         const BIAYA_ADMIN = 10000;
+        const PIN_ADMIN = "1234";
+
         let listKasbonGlobal = [];
+        let isAdminLoggedIn = false;
+
+        window.onload = function() {
+            if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
+                isAdminLoggedIn = true;
+                updateAdminUi();
+            }
+        };
+
+        function toggleLoginAdmin() {
+            if (isAdminLoggedIn) {
+                if (confirm("Apakah kamu ingin keluar dari Mode Admin?")) {
+                    isAdminLoggedIn = false;
+                    localStorage.removeItem('pgm_admin_logged_in');
+                    updateAdminUi();
+                    renderTabel();
+                }
+            } else {
+                const inputPin = prompt("Masukkan PIN Sandi Admin untuk mengonfirmasi pelunasan:");
+                if (inputPin === PIN_ADMIN) {
+                    isAdminLoggedIn = true;
+                    localStorage.setItem('pgm_admin_logged_in', 'true');
+                    alert("Berhasil masuk sebagai Admin!");
+                    updateAdminUi();
+                    renderTabel();
+                } else if (inputPin !== null) {
+                    alert("PIN Admin salah!");
+                }
+            }
+        }
+
+        function updateAdminUi() {
+            const btnLabel = document.getElementById('label-admin');
+            const statusMode = document.getElementById('status-mode-admin');
+            
+            if (isAdminLoggedIn) {
+                if (btnLabel) btnLabel.innerText = "Logout Admin";
+                if (statusMode) statusMode.classList.remove('hidden');
+            } else {
+                if (btnLabel) btnLabel.innerText = "Login Admin";
+                if (statusMode) statusMode.classList.add('hidden');
+            }
+        }
 
         function hitungTotalAdmin() {
             const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
@@ -210,7 +262,6 @@
             document.getElementById('input-total').value = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
-        // Tambah Data Kasbon Langsung ke Server Firebase
         function tambahKasbon(e) {
             e.preventDefault();
 
@@ -256,8 +307,12 @@
             document.getElementById('input-total').value = "Rp 0";
         }
 
-        // Fungsi Admin untuk Mengubah Status Jadi Lunas di Server Online
         function setLunasAdmin(keyId, nama, total) {
+            if (!isAdminLoggedIn) {
+                alert("Akses ditolak! Silakan Login Admin terlebih dahulu.");
+                return;
+            }
+
             if (confirm(`Konfirmasi bahwa kasbon atas nama "${nama}" sebesar Rp ${total.toLocaleString('id-ID')} SUDAH LUNAS?`)) {
                 database.ref('kasbon_list/' + keyId).update({
                     status: 'LUNAS'
@@ -265,7 +320,6 @@
             }
         }
 
-        // Menerima Update Real-Time Secara Otomatis
         kasbonRef.on('value', (snapshot) => {
             const data = snapshot.val();
             listKasbonGlobal = [];
@@ -370,8 +424,8 @@
                         <button onclick="bukaModalLunas('${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
                             <i class="fab fa-whatsapp"></i> WA
                         </button>
-                        ${!isLunas ? `
-                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Konfirmasi Lunas">
+                        ${(!isLunas && isAdminLoggedIn) ? `
+                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Lunas">
                                 <i class="fas fa-check-circle"></i> Set Lunas
                             </button>
                         ` : ''}
