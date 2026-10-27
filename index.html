@@ -42,13 +42,11 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- BADGE NOTIFIKASI ADMIN -->
                 <div id="admin-notif-badge" class="relative hidden sm:flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl">
                     <i class="fas fa-bell text-amber-400 animate-bounce text-xs"></i>
                     <span class="text-xs font-bold text-slate-200">Kasbon Masuk: <strong id="notif-count" class="text-sky-400">0</strong></span>
                 </div>
 
-                <!-- TOMBOL LOGIN / LOGOUT ADMIN -->
                 <button id="btn-login-admin" onclick="bukaModalLoginAdmin()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
                     <i class="fas fa-user-shield text-sky-400"></i>
                     <span id="label-admin">Login Admin</span>
@@ -65,7 +63,6 @@
     <!-- MAIN CONTAINER -->
     <main class="max-w-6xl mx-auto px-4 py-8 space-y-8 flex-1 w-full">
 
-        <!-- BANNER PENGINGAT HUTANG UNTUK PEMBELI -->
         <div id="banner-pengingat-pembeli" class="hidden bg-rose-900/40 border-2 border-rose-500/60 p-5 rounded-2xl flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xl animate-pulse">
             <div class="flex items-start gap-3">
                 <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-lg flex-shrink-0">
@@ -83,7 +80,6 @@
             </button>
         </div>
 
-        <!-- FORM PENGAJUAN KASBON / TOP UP -->
         <section class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
             <div class="border-b border-slate-800 pb-4">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
@@ -92,7 +88,6 @@
                 <p class="text-xs text-slate-400 mt-1">Pilih jenis layanan transaksi yang kamu butuhkan di bawah ini.</p>
             </div>
 
-            <!-- JALUR TRANSAKSI (BELI VS KASBON) -->
             <div class="space-y-2">
                 <label class="block text-xs font-bold text-slate-300 uppercase">Pilih Layanan</label>
                 <div class="grid grid-cols-2 gap-3">
@@ -110,7 +105,6 @@
                 </div>
             </div>
 
-            <!-- INFO BIAYA & SYARAT SESUAI JALUR -->
             <div id="info-jalur-box" class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl text-xs space-y-1">
                 <p class="font-bold text-sky-400 flex items-center gap-1.5">
                     <i class="fas fa-info-circle"></i> Mode Beli Direct (Bayar Langsung)
@@ -118,26 +112,27 @@
                 <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
             </div>
 
-            <!-- SYARAT KASBON (LOKASI STEP VERIFIKASI WA KTP/SIM) -->
-            <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl space-y-3">
+            <!-- ALUR KETAT PERSYARATAN KTP -->
+            <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-amber-400 font-bold text-xs">
+                    <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
                         <i class="fas fa-id-card text-base"></i>
-                        <span>Langkah 1: Kirim Persyaratan Foto KTP/SIM dulu</span>
+                        <span>Syarat Wajib Kasbon: Kirim Foto KTP/SIM</span>
                     </div>
-                    <span id="status-persyaratan-text" class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">BELUM TERKIRIM</span>
+                    <span id="status-persyaratan-text" class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">LOKASI TERKUNCI</span>
                 </div>
+                
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Untuk membuka fitur pengajuan kasbon, kamu wajib mengirimkan foto **KTP/SIM** ke WA Admin. Klik tombol hijau di bawah untuk mengirimkan persyaratan foto KTP/SIM:
+                    <strong>PERHATIAN:</strong> Permohonan kasbon <u>TIDAK AKAN DIPROSES</u> jika foto KTP/SIM tidak dikirimkan ke WhatsApp Admin. Pengajuan tanpa KTP yang valid akan langsung dibatalkan oleh Admin.
                 </p>
                 
-                <button type="button" onclick="kirimPersyaratanWA()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md">
-                    <i class="fab fa-whatsapp text-sm"></i> 1. Kirim Foto KTP/SIM ke WhatsApp Admin
+                <button type="button" onclick="kirimPersyaratanWA()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md">
+                    <i class="fab fa-whatsapp text-base"></i> 1. Kirim Foto KTP/SIM Ke WhatsApp Admin Sekarang
                 </button>
 
-                <div class="pt-1 flex items-center gap-2">
+                <div class="pt-2 border-t border-amber-500/20 flex items-center gap-2">
                     <input type="checkbox" id="check-syarat" onchange="toggleCeklistSyarat()" class="w-4 h-4 accent-amber-500 rounded cursor-pointer">
-                    <label for="check-syarat" class="text-[11px] text-slate-300 font-medium cursor-pointer">Saya sudah mengirimkan foto KTP/SIM ke WA Admin</label>
+                    <label for="check-syarat" class="text-[11px] text-amber-200 font-bold cursor-pointer">Saya sudah mengirimkan foto KTP/SIM asli saya ke WhatsApp Admin</label>
                 </div>
             </div>
 
@@ -175,7 +170,7 @@
             </form>
         </section>
 
-        <!-- REKAP TABEL DATA ONLINE FIREBASE -->
+        <!-- REKAP TABEL DATA FIREBASE ONLINE -->
         <section class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
@@ -198,8 +193,8 @@
                             <th class="p-3">Nama Pemohon</th>
                             <th class="p-3">No. DANA</th>
                             <th class="p-3">Total Tagihan</th>
-                            <th class="p-3">Status Kasbon</th>
-                            <th class="p-3 text-center">Aksi Konfirmasi Admin</th>
+                            <th class="p-3">Status Verifikasi</th>
+                            <th class="p-3 text-center">Kontrol Admin</th>
                         </tr>
                     </thead>
                     <tbody id="tabel-body-kasbon" class="divide-y divide-slate-800">
@@ -264,7 +259,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP DIARAHKAN KE WA ADMIN -->
+    <!-- MODAL BUKTI TRANSFER -->
     <div id="modal-bukti" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -311,8 +306,7 @@
         const PIN_ADMIN = "065147";
 
         let jalurAktif = "BELI"; 
-        let BIAYA_ADMIN = 3500;  // Biaya admin Beli Direct Rp 3.500
-        let sudahKirimSyarat = false;
+        let BIAYA_ADMIN = 3500;
 
         let listKasbonGlobal = [];
         let isAdminLoggedIn = false;
@@ -335,7 +329,7 @@
             const btnSubmit = document.getElementById('btn-submit-form');
 
             if (jenis === 'BELI') {
-                BIAYA_ADMIN = 3500; // Biaya Admin Beli
+                BIAYA_ADMIN = 3500;
                 labelBeli.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 cursor-pointer transition-all";
                 labelKasbon.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all";
                 labelBeli.querySelector('span').className = "text-xs font-black text-white";
@@ -354,7 +348,7 @@
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer";
                 btnSubmit.innerHTML = `<i class="fas fa-paper-plane"></i> Process Top Up & Kirim WA Admin`;
             } else {
-                BIAYA_ADMIN = 10000; // Biaya Admin Kasbon
+                BIAYA_ADMIN = 10000;
                 labelKasbon.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/10 cursor-pointer transition-all";
                 labelBeli.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all";
                 labelKasbon.querySelector('span').className = "text-xs font-black text-white";
@@ -378,8 +372,8 @@
             const nama = document.getElementById('input-nama').value || 'Pelanggan';
             let msgWa = `*PENGAJUAN SYARAT KTP/SIM KASBON PGM EXPRESS* 💳\n\n`;
             msgWa += `Halo Admin, saya a.n *${nama}* mau mengajukan kasbon saldo DANA.\n`;
-            msgWa += `Berikut saya melampirkan *Foto KTP / SIM Asli* saya sebagai persyaratan kasbon.\n\n`;
-            msgWa += `Mohon dikonfirmasi & di-ACC persyaratannya ya min!`;
+            msgWa += `Berikut saya melampirkan *Foto KTP / SIM Asli* saya sebagai persyaratan wajib.\n\n`;
+            msgWa += `Mohon di-ACC persyaratannya di website ya min!`;
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
         }
@@ -390,14 +384,14 @@
             const statusText = document.getElementById('status-persyaratan-text');
 
             if (isChecked) {
-                statusText.innerText = "SYARAT TERKIRIM";
+                statusText.innerText = "SYARAT TERKIRIM WA";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30";
                 
                 btnSubmit.disabled = false;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer";
                 btnSubmit.innerHTML = `<i class="fas fa-paper-plane"></i> 2. Kirim Form Kasbon Ke Admin`;
             } else {
-                statusText.innerText = "BELUM TERKIRIM";
+                statusText.innerText = "LOKASI TERKUNCI";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
 
                 btnSubmit.disabled = true;
@@ -479,7 +473,7 @@
                 const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
                 jatuhTempoIso = jatuhTempoDate.toISOString();
                 jatuhTempoStr = jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
-                initialStatus = 'MENUNGGU SYARAT ADMIN'; // Status Awal Kasbon
+                initialStatus = 'MENUNGGU ACC KTP'; 
             }
 
             const newPostRef = kasbonRef.push();
@@ -499,7 +493,7 @@
 
             let msg = "";
             if (jalurAktif === 'KASBON') {
-                msg += `*HALO ADMIN PGM EXPRESS, SAYA SUDAH KIRIM FORM KASBON DANA!* 💸\n\n`;
+                msg += `*HALO ADMIN PGM EXPRESS, SAYA SUDAH PENGAJUAN KASBON DANA!* 💸\n\n`;
                 msg += `• *Jenis Layanan*: KASBON SALDO DANA (H+3)\n`;
                 msg += `• *Nama Pemohon*: ${nama}\n`;
                 msg += `• *No. DANA Target*: ${dana}\n`;
@@ -508,7 +502,7 @@
                 msg += `• *TOTAL TAGIHAN*: *Rp ${total.toLocaleString('id-ID')}*\n`;
                 msg += `• *Jatuh Tempo*: *${jatuhTempoStr}*\n`;
                 msg += `• *Catatan*: ${catatan}\n\n`;
-                msg += `Mohon verifikasi foto KTP/SIM saya dan ACC pengajuannya di website min, terima kasih!`;
+                msg += `Saya sudah mengirimkan foto KTP/SIM di WA ini. Mohon pencet tombol *Set ACC KTP* di website ya min!`;
             } else {
                 msg += `*HALO ADMIN PGM EXPRESS, SAYA MAU TOP UP DANA DIRECT!* 🛍️\n\n`;
                 msg += `• *Jenis Layanan*: BELI DIRECT TOP UP\n`;
@@ -529,23 +523,23 @@
             document.getElementById('input-total').value = "Rp 0";
         }
 
-        // --- KHUSUS FITUR ADMIN (VERIFIKASI & PELUNASAN) ---
-        function setAccSyaratAdmin(keyId) {
-            if (!isAdminLoggedIn) return; // Hanya Admin
+        // --- KHUSUS KONTROL ADMIN (ACC KTP & PELUNASAN) ---
+        function setAccKtpAdmin(keyId) {
+            if (!isAdminLoggedIn) return; 
             database.ref('kasbon_list/' + keyId).update({
-                status: 'BELUM LUNAS' // ACC Syarat mengubah status jadi BELUM LUNAS
+                status: 'BELUM LUNAS' // Mengubah status dari 'MENUNGGU ACC KTP' menjadi 'BELUM LUNAS'
             });
         }
 
         function setLunasAdmin(keyId, nama, total) {
-            if (!isAdminLoggedIn) return; // Hanya Admin
+            if (!isAdminLoggedIn) return; 
             database.ref('kasbon_list/' + keyId).update({
                 status: 'LUNAS'
             });
         }
 
         function bukaModalHapusAdmin(keyId, nama) {
-            if (!isAdminLoggedIn) return; // Hanya Admin
+            if (!isAdminLoggedIn) return; 
 
             idKasbonYangAkanDihapus = keyId;
             document.getElementById('teks-hapus-kasbon').innerHTML = `Apakah kamu yakin ingin menghapus nota kasbon atas nama <strong>${nama}</strong> dari rekap server?`;
@@ -630,7 +624,7 @@
 
             renderPengingatPembeli();
 
-            const kasbonBelumLunasCount = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS' || k.status === 'MENUNGGU SYARAT ADMIN').length;
+            const kasbonBelumLunasCount = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS' || k.status === 'MENUNGGU ACC KTP').length;
             if (notifCount) notifCount.innerText = kasbonBelumLunasCount;
             if (notifBadge) {
                 if (kasbonBelumLunasCount > 0) notifBadge.classList.remove('hidden');
@@ -654,44 +648,43 @@
                 tr.className = "hover:bg-slate-800/50 transition-colors";
 
                 const isLunas = item.status === 'LUNAS' || item.status === 'LUNAS (DIRECT)';
-                const isMenungguSyarat = item.status === 'MENUNGGU SYARAT ADMIN';
-                const isLewatJatuhTempo = !isLunas && !isMenungguSyarat && item.jatuhTempoIso && (sekarangIso > item.jatuhTempoIso);
+                const isMenungguAcc = item.status === 'MENUNGGU ACC KTP';
+                const isLewatJatuhTempo = !isLunas && !isMenungguAcc && item.jatuhTempoIso && (sekarangIso > item.jatuhTempoIso);
 
                 let statusBadge = "";
                 if (isLunas) {
                     statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LUNAS</span>`;
-                } else if (isMenungguSyarat) {
-                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-sky-500/10 text-sky-400 border border-sky-500/20 animate-pulse">CEK KTP ADMIN</span>`;
+                } else if (isMenungguAcc) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse"><i class="fas fa-clock mr-1"></i>MENUNGGU ACC KTP</span>`;
                 } else if (isLewatJatuhTempo) {
                     statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse">LEWAT JATUH TEMPO</span>`;
                 } else {
                     statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">BELUM LUNAS</span>`;
                 }
 
-                // Tombol WA Bukti Transfer untuk Pembeli
                 let aksiButtons = `
                     <button onclick="bukaModalLunas('${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
                         <i class="fab fa-whatsapp"></i> WA
                     </button>
                 `;
 
-                // FITUR KHUSUS ADMIN (MEMUTUSKAN PERSYARATAN & PELUNASAN)
+                // TOMBOL KONTROL ADMIN (HANYA DITAMPILKAN KETIKA ADMIN LOGGED IN)
                 if (isAdminLoggedIn) {
-                    if (isMenungguSyarat) {
+                    if (isMenungguAcc) {
                         aksiButtons += `
-                            <button onclick="setAccSyaratAdmin('${item.keyId}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-amber-500/20" title="ACC Persyaratan KTP/SIM">
-                                <i class="fas fa-check-double"></i> ACC Syarat
+                            <button onclick="setAccKtpAdmin('${item.keyId}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-amber-500/20" title="ACC Persyaratan KTP Pembeli">
+                                <i class="fas fa-id-card"></i> Set ACC KTP
                             </button>
                         `;
                     } else if (!isLunas) {
                         aksiButtons += `
-                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Lunas">
+                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${item.total})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Pelunasan H+3">
                                 <i class="fas fa-check-circle"></i> Set Lunas
                             </button>
                         `;
                     }
                     aksiButtons += `
-                        <button onclick="bukaModalHapusAdmin('${item.keyId}', '${item.nama}')" class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/30 font-bold text-[11px] transition-all cursor-pointer" title="Hapus Data">
+                        <button onclick="bukaModalHapusAdmin('${item.keyId}', '${item.nama}')" class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/30 font-bold text-[11px] transition-all cursor-pointer" title="Hapus Data Nota">
                             <i class="fas fa-trash-alt"></i> Hapus
                         </button>
                     `;
