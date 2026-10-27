@@ -105,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- BOX PERATURAN RESMI KASBON & DENDA KETERLAMBATAN -->
+            <!-- PERATURAN KASBON -->
             <div id="box-peraturan-kasbon" class="hidden bg-rose-950/50 border-2 border-rose-500/50 p-4 rounded-xl space-y-2 text-xs">
                 <p class="font-black text-rose-400 uppercase tracking-wide flex items-center gap-2">
                     <i class="fas fa-gavel text-sm"></i> Peraturan Resmi & Syarat Pelunasan Kasbon
@@ -126,7 +126,7 @@
                 <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
             </div>
 
-            <!-- ALUR KETAT: KONFIRMASI KTP/SIM DARI ADMIN -->
+            <!-- BOX SYARAT KTP DENGAN FITUR ACC KHUSUS ADMIN & OTOMATISASI NOTA BUYER -->
             <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
@@ -137,15 +137,26 @@
                 </div>
                 
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    <strong>INSTRUKSI PEMBELI:</strong> Kirimkan foto KTP / SIM asli kamu ke WhatsApp Admin. Setelah Admin mengecek dan menekan <strong>Set ACC KTP</strong> di panel Admin, tombol pengajuan di bawah akan otomatis terbuka!
+                    <strong>INSTRUKSI PEMBELI:</strong> Klik tombol hijau di bawah untuk mengirimkan foto KTP/SIM ke WA Admin. Setelah dikirim, nota atas nama <strong>Buyer X</strong> akan otomatis masuk ke rekap tabel.
                 </p>
                 
-                <button type="button" onclick="kirimPersyaratanWA()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md">
-                    <i class="fab fa-whatsapp text-base"></i> Kirim Foto KTP/SIM Ke WhatsApp Admin
+                <!-- TOMBOL KIRIM KTP PEMBELI -->
+                <button type="button" onclick="kirimPersyaratanWA()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                    <i class="fab fa-whatsapp text-base"></i> 1. Kirim Foto KTP/SIM Ke WhatsApp Admin (Otomatis Masuk Nota)
                 </button>
 
+                <!-- FITUR BARU: TOMBOL ACC LANGSUNG DI BAWAH INSTRUKSI (KHUSUS MODE ADMIN) -->
+                <div id="container-acc-admin-box" class="hidden pt-2 border-t border-amber-500/30 space-y-2">
+                    <p class="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                        <i class="fas fa-user-shield"></i> Panel Konfirmasi Admin:
+                    </p>
+                    <button type="button" onclick="konfirmasiAccKtpLangsungAdmin()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 cursor-pointer">
+                        <i class="fas fa-check-double text-sm"></i> [ADMIN] ACC KTP Pembeli Ini & Buka Form Kasbon
+                    </button>
+                </div>
+
                 <div id="box-status-admin-konfirmasi" class="pt-2 border-t border-amber-500/20 flex items-center justify-between">
-                    <span class="text-[11px] text-amber-200 font-bold">Status Verifikasi Admin:</span>
+                    <span class="text-[11px] text-amber-200 font-bold">Status Verifikasi Syarat:</span>
                     <span id="badge-verifikasi-admin" class="text-[11px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20">
                         <i class="fas fa-lock mr-1"></i> Menunggu Admin ACC KTP
                     </span>
@@ -407,14 +418,44 @@
             hitungTotalAdmin();
         }
 
+        // FUNGSI SAAT PEMBELI NGIRIM KTP: LANGSUNG OTO MASUKIN NOTA DRAFT (BUYER X) KE DATABASE
         function kirimPersyaratanWA() {
-            const nama = document.getElementById('input-nama').value || 'Pelanggan';
+            const hitungBuyerExist = listKasbonGlobal.filter(k => k.nama && k.nama.startsWith('Buyer')).length + 1;
+            const namaBuyerOto = `Buyer ${hitungBuyerExist}`;
+
+            const sekarang = new Date();
+            const tanggalPinjamStr = sekarang.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+            const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
+
+            // Buat Nota Otomatis
+            const newPostRef = kasbonRef.push();
+            newPostRef.set({
+                id: newPostRef.key,
+                jenis: 'KASBON',
+                tanggal: tanggalPinjamStr,
+                jatuhTempoIso: jatuhTempoDate.toISOString(),
+                jatuhTempoStr: jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
+                nama: namaBuyerOto,
+                dana: '-',
+                nominal: 0,
+                total: 10000,
+                catatan: 'DRAFT PENGAJUAN KTP/SIM',
+                status: 'MENUNGGU ACC KTP'
+            });
+
             let msgWa = `*PENGAJUAN SYARAT KTP/SIM KASBON PGM EXPRESS* 💳\n\n`;
-            msgWa += `Halo Admin, saya a.n *${nama}* mau mengajukan kasbon saldo DANA.\n`;
+            msgWa += `Halo Admin, saya pemohon kasbon (*${namaBuyerOto}*).\n`;
             msgWa += `Berikut saya melampirkan *Foto KTP / SIM Asli* saya sebagai persyaratan wajib.\n\n`;
-            msgWa += `Mohon klik tombol *Set ACC KTP* di panel Admin ya min agar tombol ajukan kasbon saya terbuka!`;
+            msgWa += `Nota saya sudah terbuat di tabel dengan nama *${namaBuyerOto}*. Mohon klik tombol *Set ACC KTP* ya min!`;
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
+        }
+
+        // FUNGSI ADMIN ACC LANGSUNG DARI BOX KTP
+        function konfirmasiAccKtpLangsungAdmin() {
+            if (!isAdminLoggedIn) return;
+            adminAccRef.set(true);
+            alert("Berhasil! Syarat KTP/SIM telah di-ACC. Form pengajuan kasbon pembeli sekarang sudah terbuka.");
         }
 
         function updateKasbonFormAccess() {
@@ -436,7 +477,7 @@
                 statusText.innerText = "BELUM DI-ACC ADMIN";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
 
-                badgeAdmin.innerHTML = `<i class="fas fa-lock mr-1"></i> Menunggu Admin Klik 'Set ACC KTP'`;
+                badgeAdmin.innerHTML = `<i class="fas fa-lock mr-1"></i> Menunggu Admin ACC KTP`;
                 badgeAdmin.className = "text-[11px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20";
 
                 btnSubmit.disabled = true;
@@ -482,13 +523,16 @@
         function updateAdminUi() {
             const btnLabel = document.getElementById('label-admin');
             const statusMode = document.getElementById('status-mode-admin');
+            const accAdminBox = document.getElementById('container-acc-admin-box');
             
             if (isAdminLoggedIn) {
                 if (btnLabel) btnLabel.innerText = "Logout Admin";
                 if (statusMode) statusMode.classList.remove('hidden');
+                if (accAdminBox) accAdminBox.classList.remove('hidden'); // Tampilkan tombol ACC Admin di box
             } else {
                 if (btnLabel) btnLabel.innerText = "Login Admin";
                 if (statusMode) statusMode.classList.add('hidden');
+                if (accAdminBox) accAdminBox.classList.add('hidden');
             }
         }
 
@@ -498,7 +542,6 @@
             document.getElementById('input-total').value = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
-        // FUNGSI UTAMA HITUNG DENDA OTOMATIS (RP 2.000 PER 3 HARI KETERLAMBATAN)
         function hitungTotalPlusDenda(item) {
             let totalAkhir = item.total || 0;
             let denda = 0;
@@ -512,7 +555,6 @@
                     const selisihMs = sekarangMs - jatuhTempoMs;
                     const hariTerlambat = Math.floor(selisihMs / (1000 * 60 * 60 * 24));
                     
-                    // Hitung kelipatan 3 hari keterlambatan
                     kelipatanDenda = Math.floor(hariTerlambat / 3) + 1;
                     if (kelipatanDenda > 0) {
                         denda = kelipatanDenda * 2000;
@@ -572,7 +614,7 @@
                 msg += `• *TOTAL TAGIHAN*: *Rp ${total.toLocaleString('id-ID')}*\n`;
                 msg += `• *Jatuh Tempo*: *${jatuhTempoStr}*\n`;
                 msg += `• *Catatan*: ${catatan}\n\n`;
-                msg += `Saya sudah membaca dan menyetujui ketentuan denda Rp 2.000/3 hari jika terlambat. Mohon segera diproses ya min!`;
+                msg += `Saya sudah membaca ketentuan denda Rp 2.000/3 hari jika terlambat. Mohon diproses ya min!`;
             } else {
                 msg += `*HALO ADMIN PGM EXPRESS, SAYA MAU TOP UP DANA DIRECT!* 🛍️\n\n`;
                 msg += `• *Jenis Layanan*: BELI DIRECT TOP UP\n`;
@@ -723,7 +765,6 @@
                 const isMenungguAcc = item.status === 'MENUNGGU ACC KTP';
                 const isLewatJatuhTempo = !isLunas && !isMenungguAcc && item.jatuhTempoIso && (sekarangIso > item.jatuhTempoIso);
 
-                // Hitung total nilai beserta denda jika lewat batas waktu H+3
                 const { totalAkhir, denda } = hitungTotalPlusDenda(item);
 
                 let statusBadge = "";
@@ -805,4 +846,4 @@
         }
     </script>
 </body>
-                    </html>
+</html>
