@@ -92,13 +92,13 @@
                 <label class="block text-xs font-bold text-slate-300 uppercase">Pilih Layanan</label>
                 <div class="grid grid-cols-2 gap-3">
                     <label id="label-jalur-beli" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 cursor-pointer transition-all">
-                        <input type="radio" name="jenis_transaksi" value="BELI" checked onchange="toggleJalurTransaksi('BELI')" class="hidden">
+                        <input type="radio" id="radio-beli" name="jenis_transaksi" value="BELI" checked onchange="toggleJalurTransaksi('BELI')" class="hidden">
                         <i class="fas fa-shopping-cart text-sky-400 text-sm"></i>
                         <span class="text-xs font-black text-white">Beli Direct (Admin 3.500)</span>
                     </label>
 
                     <label id="label-jalur-kasbon" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all">
-                        <input type="radio" name="jenis_transaksi" value="KASBON" onchange="toggleJalurTransaksi('KASBON')" class="hidden">
+                        <input type="radio" id="radio-kasbon" name="jenis_transaksi" value="KASBON" onchange="toggleJalurTransaksi('KASBON')" class="hidden">
                         <i class="fas fa-hand-holding-usd text-amber-400 text-sm"></i>
                         <span class="text-xs font-black text-slate-400">Kasbon Saldo (H+3)</span>
                     </label>
@@ -112,7 +112,6 @@
                 <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
             </div>
 
-            <!-- ALUR KETAT PERSYARATAN KTP -->
             <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
@@ -312,15 +311,35 @@
         let isAdminLoggedIn = false;
         let idKasbonYangAkanDihapus = null;
 
+        // BACA STATE TERAKHIR SAAT HALAMAN DIMUAT BUKAN DEFAULT BALIK KE DIRECT
         window.onload = function() {
             if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
                 isAdminLoggedIn = true;
                 updateAdminUi();
             }
+
+            // Pulihkan pilihan jalur transaksi pembeli
+            const savedJalur = localStorage.getItem('pgm_jalur_aktif');
+            if (savedJalur === 'KASBON') {
+                document.getElementById('radio-kasbon').checked = true;
+                
+                // Pulihkan centang syarat jika sudah pernah diklik
+                const savedSyarat = localStorage.getItem('pgm_syarat_checked');
+                if (savedSyarat === 'true') {
+                    document.getElementById('check-syarat').checked = true;
+                }
+                
+                toggleJalurTransaksi('KASBON');
+            } else {
+                document.getElementById('radio-beli').checked = true;
+                toggleJalurTransaksi('BELI');
+            }
         };
 
         function toggleJalurTransaksi(jenis) {
             jalurAktif = jenis;
+            localStorage.setItem('pgm_jalur_aktif', jenis); // Simpan pilihan di localStorage
+
             const labelBeli = document.getElementById('label-jalur-beli');
             const labelKasbon = document.getElementById('label-jalur-kasbon');
             const infoBox = document.getElementById('info-jalur-box');
@@ -380,6 +399,8 @@
 
         function toggleCeklistSyarat() {
             const isChecked = document.getElementById('check-syarat').checked;
+            localStorage.setItem('pgm_syarat_checked', isChecked ? 'true' : 'false');
+
             const btnSubmit = document.getElementById('btn-submit-form');
             const statusText = document.getElementById('status-persyaratan-text');
 
@@ -517,8 +538,11 @@
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 
+            // Reset form dan hapus simpanan syarat
             document.getElementById('form-kasbon').reset();
             document.getElementById('check-syarat').checked = false;
+            localStorage.removeItem('pgm_syarat_checked');
+            
             if(jalurAktif === 'KASBON') toggleCeklistSyarat();
             document.getElementById('input-total').value = "Rp 0";
         }
@@ -527,7 +551,7 @@
         function setAccKtpAdmin(keyId) {
             if (!isAdminLoggedIn) return; 
             database.ref('kasbon_list/' + keyId).update({
-                status: 'BELUM LUNAS' // Mengubah status dari 'MENUNGGU ACC KTP' menjadi 'BELUM LUNAS'
+                status: 'BELUM LUNAS'
             });
         }
 
@@ -668,7 +692,6 @@
                     </button>
                 `;
 
-                // TOMBOL KONTROL ADMIN (HANYA DITAMPILKAN KETIKA ADMIN LOGGED IN)
                 if (isAdminLoggedIn) {
                     if (isMenungguAcc) {
                         aksiButtons += `
@@ -728,4 +751,4 @@
         }
     </script>
 </body>
-</html>
+                </html>
