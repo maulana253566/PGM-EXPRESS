@@ -126,7 +126,7 @@
                 <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
             </div>
 
-            <!-- BOX SYARAT KTP DENGAN FITUR OTOMATISASI BUYER X -->
+            <!-- BOX SYARAT KTP DENGAN FITUR NOTA DRAFT SEMENTARA -->
             <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
@@ -137,12 +137,12 @@
                 </div>
                 
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    <strong>INSTRUKSI PEMBELI:</strong> Klik tombol hijau di bawah untuk mengirimkan foto KTP/SIM ke WA Admin. Setelah dikirim, nota otomatis tercatat di tabel sebagai <strong>Buyer 1, Buyer 2, dst.</strong> Begitu Admin menekan <strong>Set ACC KTP</strong>, nama nota otomatis berubah jadi nama asli kamu!
+                    <strong>INSTRUKSI PEMBELI:</strong> Klik tombol di bawah untuk mengirim foto KTP/SIM ke WA Admin. Nota draf sementara <strong>Buyer X</strong> akan masuk ke tabel. Setelah Admin mengecek KTP dan menekan tombol <strong>Set ACC KTP</strong>, nota draf sementara tersebut akan otomatis dihapus dan form pengajuan kasbon kamu di bawah akan terbuka!
                 </p>
                 
                 <!-- TOMBOL KIRIM KTP PEMBELI -->
                 <button type="button" onclick="kirimPersyaratanWA()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
-                    <i class="fab fa-whatsapp text-base"></i> Kirim Foto KTP/SIM Ke WA Admin (Otomatis Buat Nota Buyer X)
+                    <i class="fab fa-whatsapp text-base"></i> Kirim Foto KTP/SIM Ke WA Admin (Bikin Draf Buyer X)
                 </button>
 
                 <div id="box-status-admin-konfirmasi" class="pt-2 border-t border-amber-500/20 flex items-center justify-between">
@@ -252,33 +252,6 @@
         </div>
     </div>
 
-    <!-- MODAL SET ACC KTP & MENGUBAH BUYER X MENJADI NAMA ASLI -->
-    <div id="modal-acc-nama" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-id-card text-amber-400"></i> ACC KTP & Ubah Nama Buyer
-                </h3>
-                <button onclick="tutupModalAccNama()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Masukkan Nama Asli Pembeli (Sesuai KTP)</label>
-                <input type="text" id="input-nama-asli-admin" placeholder="Contoh: Maulana Aji" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500">
-                <p class="text-[10px] text-slate-400 mt-1">Nama nota Buyer X ini akan otomatis diperbarui menjadi nama asli di tabel.</p>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="prosesEksekusiAccKtp()" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all">
-                    Set ACC KTP & Simpan Nama
-                </button>
-                <button type="button" onclick="tutupModalAccNama()" class="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-700">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL KONFIRMASI HAPUS ADMIN -->
     <div id="modal-hapus" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
@@ -357,7 +330,6 @@
         let listKasbonGlobal = [];
         let isAdminLoggedIn = false;
         let idKasbonYangAkanDihapus = null;
-        let idNotaYangAkanDiAcc = null;
 
         window.onload = function() {
             if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
@@ -436,9 +408,8 @@
             hitungTotalAdmin();
         }
 
-        // PERBAIKAN UTAMA: MEMBUAT NOTA BUYER 1, BUYER 2, DST SECARA PASTI DI DATABASE
+        // PEMBELI KLIK KIRIM KTP: BIKIN NOTA DRAFT BUYER X
         function kirimPersyaratanWA() {
-            // Hitung jumlah nota berseri Buyer yang sudah ada di database
             const buyerList = listKasbonGlobal.filter(k => k.nama && k.nama.toLowerCase().includes('buyer'));
             const buyerNumber = buyerList.length + 1;
             const namaBuyer = `Buyer ${buyerNumber}`;
@@ -447,7 +418,6 @@
             const tanggalPinjamStr = sekarang.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
             const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
 
-            // Simpan langsung nota draf Buyer X ke Firebase Realtime Database
             const newPostRef = kasbonRef.push();
             newPostRef.set({
                 id: newPostRef.key,
@@ -459,63 +429,29 @@
                 dana: '-',
                 nominal: 0,
                 total: 10000,
-                catatan: 'PENGAJUAN FOTO KTP/SIM',
+                catatan: 'PENGAJUAN FOTO KTP/SIM (TEMPORARY DRAFT)',
                 status: 'MENUNGGU ACC KTP'
             });
 
-            // Kirim pesan konfirmasi ke WhatsApp Admin
             let msgWa = `*PENGAJUAN SYARAT KTP/SIM KASBON PGM EXPRESS* 💳\n\n`;
             msgWa += `Halo Admin, saya pemohon kasbon (*${namaBuyer}*).\n`;
             msgWa += `Berikut saya melampirkan *Foto KTP / SIM Asli* saya sebagai persyaratan wajib.\n\n`;
-            msgWa += `Nota draf saya sudah otomatis terdaftar di tabel rekap sebagai *${namaBuyer}*. Mohon di-ACC KTP & diubah nama saya ya min!`;
+            msgWa += `Nota draf sementara saya terdaftar di tabel sebagai *${namaBuyer}*. Mohon klik tombol *Set ACC KTP* ya min!`;
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
         }
 
-        // BUKA MODAL ADMIN UNTUK MEMASUKKAN NAMA PEMBELI ASLI
-        function bukaModalAccNamaAdmin(keyId, namaLama) {
-            if (!isAdminLoggedIn) return;
-            idNotaYangAkanDiAcc = keyId;
-            const inputNama = document.getElementById('input-nama-asli-admin');
-            
-            // Jika nama sebelumnya adalah Buyer X, kosongkan input agar Admin tinggal isi nama asli
-            if (namaLama && namaLama.toLowerCase().includes('buyer')) {
-                inputNama.value = '';
-            } else {
-                inputNama.value = namaLama || '';
-            }
-            
-            const modal = document.getElementById('modal-acc-nama');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
+        // AKSI ADMIN KLIK "SET ACC KTP": ACC SYARAT & OTOMATIS HAPUS NOTA DRAFT BUYER X
+        function setAccKtpAdmin(keyId) {
+            if (!isAdminLoggedIn) return; 
 
-        function tutupModalAccNama() {
-            idNotaYangAkanDiAcc = null;
-            const modal = document.getElementById('modal-acc-nama');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function prosesEksekusiAccKtp() {
-            const namaAsli = document.getElementById('input-nama-asli-admin').value.trim();
-            if (!namaAsli) {
-                alert("Mohon masukkan nama asli pembeli sesuai KTP!");
-                return;
-            }
-
-            // Set global status ACC KTP ke true agar tombol ajukan di HP pembeli terbuka
+            // 1. Set status ACC KTP global menjadi true agar form kasbon pembeli terbuka
             adminAccRef.set(true);
 
-            if (idNotaYangAkanDiAcc) {
-                // Update nama dari Buyer X ke Nama Asli Pembeli
-                database.ref('kasbon_list/' + idNotaYangAkanDiAcc).update({
-                    nama: namaAsli,
-                    status: 'BELUM LUNAS'
-                });
+            // 2. Hapus nota draft sementara "Buyer X" dari Firebase jika di-klik dari baris tersebut
+            if (keyId) {
+                database.ref('kasbon_list/' + keyId).remove();
             }
-
-            tutupModalAccNama();
         }
 
         function updateKasbonFormAccess() {
@@ -622,6 +558,7 @@
             return { totalAkhir, denda, kelipatanDenda };
         }
 
+        // SETELAH PEMBELI MENGISI FORMULIR LENGKAP: BIKIN NOTA PERMANEN DENGAN NAMA ASLI
         function tambahKasbon(e) {
             e.preventDefault();
 
@@ -645,6 +582,7 @@
                 initialStatus = 'BELUM LUNAS'; 
             }
 
+            // SIMPAN NOTA RESMI/PERMANEN DENGAN DATA NAMA ASLI PEMBELI
             const newPostRef = kasbonRef.push();
             newPostRef.set({
                 id: newPostRef.key,
@@ -686,6 +624,7 @@
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 
+            // Reset status penguncian form untuk transaksi berikutnya
             adminAccRef.set(false);
             document.getElementById('form-kasbon').reset();
             document.getElementById('input-total').value = "Rp 0";
@@ -726,7 +665,7 @@
             modal.classList.remove('flex');
         }
 
-        // LISTEN REALTIME FIREBASE REKAP TABEL
+        // LISTEN REALTIME REKAP TABEL FIREBASE
         kasbonRef.on('value', (snapshot) => {
             const data = snapshot.val();
             listKasbonGlobal = [];
@@ -832,14 +771,15 @@
                     </button>
                 `;
 
-                // TOMBOL UNTUK ADMIN MENG-ACC KTP & MENGUBAH BUYER X MENJADI NAMA ASLI
+                // TOMBOL ADMIN: PENCET "SET ACC KTP" PADA BARIS BUYER X UNTUK MENG-ACC SEKALIGUS MENGHAPUS NOTA DRAFT SEMENTARA
                 if (isAdminLoggedIn) {
-                    aksiButtons += `
-                        <button onclick="bukaModalAccNamaAdmin('${item.keyId}', '${item.nama}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-amber-500/20" title="Set ACC KTP & Input Nama Asli">
-                            <i class="fas fa-id-card"></i> Set ACC KTP
-                        </button>
-                    `;
-                    if (!isLunas) {
+                    if (isMenungguAcc) {
+                        aksiButtons += `
+                            <button onclick="setAccKtpAdmin('${item.keyId}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-amber-500/20" title="ACC Syarat KTP & Hapus Nota Draf Ini">
+                                <i class="fas fa-check-circle"></i> Set ACC KTP
+                            </button>
+                        `;
+                    } else if (!isLunas) {
                         aksiButtons += `
                             <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${totalAkhir})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Pelunasan H+3">
                                 <i class="fas fa-check-circle"></i> Set Lunas
