@@ -61,22 +61,11 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- PROFIL USER GOOGLE -->
                 <div id="user-profile-badge" class="hidden items-center gap-2 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-xl">
                     <img id="user-avatar" src="" alt="Avatar" class="w-6 h-6 rounded-full border border-sky-400">
                     <span id="user-display-name" class="text-xs font-bold text-slate-200">User</span>
                     <button onclick="logoutGoogle()" class="text-xs text-rose-400 hover:text-rose-300 ml-1" title="Logout Google"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
-
-                <div id="admin-notif-badge" class="relative hidden sm:flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl">
-                    <i class="fas fa-bell text-amber-400 animate-bounce text-xs"></i>
-                    <span class="text-xs font-bold text-slate-200">Kasbon Masuk: <strong id="notif-count" class="text-sky-400">0</strong></span>
-                </div>
-
-                <button id="btn-login-admin" onclick="bukaModalLoginAdmin()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
-                    <i class="fas fa-user-shield text-sky-400"></i>
-                    <span id="label-admin">Login Admin</span>
-                </button>
 
                 <a href="https://wa.me/6283157787231" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all">
                     <i class="fab fa-whatsapp text-sm"></i>
@@ -119,8 +108,8 @@
                 <div class="grid grid-cols-2 gap-3">
                     <label id="label-jalur-beli" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 cursor-pointer transition-all">
                         <input type="radio" id="radio-beli" name="jenis_transaksi" value="BELI" checked onchange="toggleJalurTransaksi('BELI')" class="hidden">
-                        <i class="fas fa-shopping-cart text-sky-400 text-sm"></i>
-                        <span class="text-xs font-black text-white">Beli Direct (Admin 3.500)</span>
+                        <i class="fas fa-qrcode text-sky-400 text-sm"></i>
+                        <span class="text-xs font-black text-white">Beli Direct via QRIS (Admin 3.500)</span>
                     </label>
 
                     <label id="label-jalur-kasbon" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all">
@@ -131,7 +120,23 @@
                 </div>
             </div>
 
-            <!-- PERATURAN KASBON -->
+            <!-- METODE PEMBAYARAN QRIS DITAMPILKAN LANGSUNG -->
+            <div id="box-qris-pembayaran-langsung" class="bg-slate-800/80 border-2 border-sky-500/50 p-5 rounded-2xl text-center space-y-3">
+                <div class="flex items-center justify-center gap-2 text-sky-400 font-black text-xs uppercase tracking-wide">
+                    <i class="fas fa-qrcode text-lg"></i>
+                    <span>Scan QRIS Resmi PGM Gaming</span>
+                </div>
+                
+                <div class="bg-white p-3 rounded-2xl border border-slate-700 shadow-lg inline-block mx-auto">
+                    <img src="qris.jpg" alt="QRIS PGM Gaming" class="w-52 h-auto rounded-xl mx-auto object-contain">
+                </div>
+
+                <div class="text-[11px] text-slate-300 space-y-0.5">
+                    <p class="font-bold text-white">NMID: ID1026527194173</p>
+                    <p class="text-slate-400">A.n <strong class="text-sky-300">PGM Gaming</strong> (Mendukung All E-Wallet & Bank)</p>
+                </div>
+            </div>
+
             <div id="box-peraturan-kasbon" class="hidden bg-rose-950/50 border-2 border-rose-500/50 p-4 rounded-xl space-y-2 text-xs">
                 <p class="font-black text-rose-400 uppercase tracking-wide flex items-center gap-2">
                     <i class="fas fa-gavel text-sm"></i> Peraturan Resmi & Syarat Pelunasan Kasbon
@@ -145,14 +150,6 @@
                 </ul>
             </div>
 
-            <div id="info-jalur-box" class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl text-xs space-y-1">
-                <p class="font-bold text-sky-400 flex items-center gap-1.5">
-                    <i class="fas fa-info-circle"></i> Mode Beli Direct (Bayar Langsung)
-                </p>
-                <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
-            </div>
-
-            <!-- BOX SYARAT KTP -->
             <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
@@ -207,7 +204,7 @@
                 </div>
 
                 <button type="submit" id="btn-submit-form" class="w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fas fa-paper-plane"></i> Process Top Up & Kirim WA Admin
+                    <i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS & Konfirmasi Pembelian
                 </button>
             </form>
         </section>
@@ -221,9 +218,6 @@
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Terhubung langsung secara otomatis (Real-Time Database).</p>
                 </div>
-                <div id="status-mode-admin" class="hidden px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center gap-1.5 self-start sm:self-auto">
-                    <i class="fas fa-check-circle"></i> Mode Admin Aktif
-                </div>
             </div>
 
             <div class="overflow-x-auto no-scrollbar">
@@ -236,7 +230,7 @@
                             <th class="p-3">No. DANA</th>
                             <th class="p-3">Total Tagihan (+Denda)</th>
                             <th class="p-3">Status Verifikasi</th>
-                            <th class="p-3 text-center">Kontrol Admin</th>
+                            <th class="p-3 text-center">Aksi Pelanggan</th>
                         </tr>
                     </thead>
                     <tbody id="tabel-body-kasbon" class="divide-y divide-slate-800">
@@ -250,115 +244,7 @@
 
     </main>
 
-    <!-- MODAL LOGIN ADMIN -->
-    <div id="modal-login" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-user-shield text-sky-400"></i> Login Admin
-                </h3>
-                <button onclick="tutupModalLogin()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-300 uppercase mb-2">PIN Keamanan Admin</label>
-                <input type="password" id="input-pin-admin" placeholder="Masukkan 6 Digit PIN Admin..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
-                <p id="error-pin" class="text-rose-400 text-[11px] mt-1 hidden">PIN Admin tidak valid!</p>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="prosesLoginAdmin()" class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs transition-all">
-                    Masuk Mode Admin
-                </button>
-                <button type="button" onclick="tutupModalLogin()" class="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-700">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL KONFIRMASI HAPUS ADMIN -->
-    <div id="modal-hapus" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
-            <div class="w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center text-xl mx-auto">
-                <i class="fas fa-trash-alt"></i>
-            </div>
-            <div>
-                <h3 class="text-base font-bold text-white">Konfirmasi Hapus Nota</h3>
-                <p id="teks-hapus-kasbon" class="text-xs text-slate-300 mt-1 leading-relaxed">
-                    Apakah kamu yakin ingin menghapus nota ini secara permanen?
-                </p>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button type="button" id="btn-eksekusi-hapus" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs transition-all">
-                    Ya, Hapus Data
-                </button>
-                <button type="button" onclick="tutupModalHapus()" class="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-700">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL BUKTI TRANSFER -->
-    <div id="modal-bukti" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fab fa-whatsapp text-emerald-400 text-lg"></i> Kirim Bukti Transfer
-                </h3>
-                <button onclick="tutupModalBukti()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-
-            <p class="text-xs text-slate-300 leading-relaxed">
-                Bukti transfer <strong>WAJIB dikirimkan langsung ke WhatsApp Admin</strong>. Setelah kamu melunasi dan dicek Admin, status di website akan otomatis berubah jadi LUNAS.
-            </p>
-
-            <div class="pt-2">
-                <a id="btn-kirim-bukti-wa" href="#" target="_blank" onclick="tutupModalBukti()" class="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
-                    <i class="fab fa-whatsapp text-lg"></i> Kirim Bukti Transfer ke WA Admin
-                </a>
-            </div>
-            
-            <button type="button" onclick="tutupModalBukti()" class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs hover:bg-slate-700">
-                Batal
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL PEMBAYARAN QRIS DIRECT -->
-    <div id="modal-qris" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl text-center">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-qrcode text-sky-400 text-lg"></i> Pembayaran QRIS Direct
-                </h3>
-                <button onclick="tutupModalQris()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-
-            <div>
-                <p class="text-xs text-slate-300">Silakan scan QRIS di bawah ini untuk membayar:</p>
-                <p id="qris-total-bayar" class="text-lg font-extrabold text-sky-400 mt-1">Rp 0</p>
-            </div>
-
-            <!-- GAMBAR QRIS PGM GAMING -->
-            <div class="bg-white p-3 rounded-2xl border-2 border-sky-500/40 shadow-inner inline-block mx-auto">
-                <img src="qris.jpg" alt="QRIS PGM Gaming" class="w-60 h-auto rounded-xl mx-auto object-contain">
-            </div>
-
-            <p class="text-[11px] text-slate-400 leading-relaxed">
-                NMID: <span class="font-mono text-slate-200">ID1026527194173</span><br>
-                A.n <strong class="text-white">PGM Gaming</strong>
-            </p>
-
-            <button type="button" id="btn-lanjut-wa-qris" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer">
-                <i class="fab fa-whatsapp text-base"></i> Sudah Bayar & Kirim Bukti ke WA
-            </button>
-        </div>
-    </div>
-
-    <!-- SCRIPT FIREBASE & SISTEM REALTIME -->
+    <!-- SCRIPT FIREBASE & SCRIPT KASBON -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAm-kLBcojA_-mIuyo34Vnt9T7Oo_2jR0A",
@@ -378,19 +264,14 @@
         const adminAccRef = database.ref('admin_ktp_acc'); 
 
         const ADMIN_WA_NUMBER = "6283157787231";
-        const PIN_ADMIN = "065147";
 
         let jalurAktif = "BELI"; 
         let BIAYA_ADMIN = 3500;
         let isKtpApprovedByAdmin = false;
 
         let listKasbonGlobal = [];
-        let isAdminLoggedIn = false;
-        let idKasbonYangAkanDihapus = null;
         let currentUser = null;
-        let linkWaDirectTemp = "";
 
-        // AUTH & NOTIFIKASI SYSTEM
         auth.onAuthStateChanged(user => {
             const overlay = document.getElementById('google-login-overlay');
             const profileBadge = document.getElementById('user-profile-badge');
@@ -405,7 +286,7 @@
                 document.getElementById('user-display-name').innerText = user.displayName || 'Pelanggan';
                 document.getElementById('input-nama').value = user.displayName || '';
 
-                mintaIzinNotifikasi();
+                mintaIzinNotifikasiBackground();
             } else {
                 currentUser = null;
                 overlay.classList.remove('hidden');
@@ -415,40 +296,24 @@
 
         function loginDenganGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                alert("Gagal Login Google: " + error.message);
-            });
+            auth.signInWithRedirect(provider);
         }
 
         function logoutGoogle() {
             auth.signOut();
         }
 
-        function mintaIzinNotifikasi() {
-            if ("Notification" in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        console.log("Izin Notifikasi HP Diberikan!");
-                    }
-                });
-            }
-        }
-
-        function kirimNotifikasiLokal(judul, isi) {
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(judul, {
-                    body: isi,
-                    icon: "https://cdn-icons-png.flaticon.com/512/732/732200.png"
-                });
+        function mintaIzinNotifikasiBackground() {
+            if ('serviceWorker' in navigator && 'Notification' in window) {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(registration => {
+                        return Notification.requestPermission();
+                    })
+                    .catch(err => console.log('Err SW:', err));
             }
         }
 
         window.onload = function() {
-            if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
-                isAdminLoggedIn = true;
-                updateAdminUi();
-            }
-
             const savedJalur = localStorage.getItem('pgm_jalur_aktif');
             if (savedJalur === 'KASBON') {
                 document.getElementById('radio-kasbon').checked = true;
@@ -460,13 +325,7 @@
         };
 
         adminAccRef.on('value', (snapshot) => {
-            const wasApproved = isKtpApprovedByAdmin;
             isKtpApprovedByAdmin = snapshot.val() === true;
-
-            if (!wasApproved && isKtpApprovedByAdmin) {
-                kirimNotifikasiLokal("PGM Express: Status KTP Di-ACC!", "Admin telah meng-ACC foto KTP kamu. Form pengajuan kasbon sekarang dapat diisi!");
-            }
-
             if (jalurAktif === 'KASBON') {
                 updateKasbonFormAccess();
             }
@@ -478,7 +337,7 @@
 
             const labelBeli = document.getElementById('label-jalur-beli');
             const labelKasbon = document.getElementById('label-jalur-kasbon');
-            const infoBox = document.getElementById('info-jalur-box');
+            const boxQrisDirect = document.getElementById('box-qris-pembayaran-langsung');
             const boxSyarat = document.getElementById('box-syarat-kasbon');
             const boxPeraturan = document.getElementById('box-peraturan-kasbon');
             const labelTotal = document.getElementById('label-total-admin');
@@ -491,19 +350,15 @@
                 labelBeli.querySelector('span').className = "text-xs font-black text-white";
                 labelKasbon.querySelector('span').className = "text-xs font-black text-slate-400";
                 
+                boxQrisDirect.classList.remove('hidden');
                 boxSyarat.classList.add('hidden');
                 boxPeraturan.classList.add('hidden');
-                infoBox.innerHTML = `
-                    <p class="font-bold text-sky-400 flex items-center gap-1.5">
-                        <i class="fas fa-info-circle"></i> Mode Beli Direct (Bayar Langsung)
-                    </p>
-                    <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
-                `;
+                
                 labelTotal.innerText = "Total Biaya + Admin (Rp 3.500)";
                 
                 btnSubmit.disabled = false;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer";
-                btnSubmit.innerHTML = `<i class="fas fa-paper-plane"></i> Process Top Up & Kirim WA Admin`;
+                btnSubmit.innerHTML = `<i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS & Konfirmasi Pembelian`;
             } else {
                 BIAYA_ADMIN = 10000;
                 labelKasbon.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/10 cursor-pointer transition-all";
@@ -511,14 +366,10 @@
                 labelKasbon.querySelector('span').className = "text-xs font-black text-white";
                 labelBeli.querySelector('span').className = "text-xs font-black text-slate-400";
 
+                boxQrisDirect.classList.add('hidden');
                 boxSyarat.classList.remove('hidden');
                 boxPeraturan.classList.remove('hidden');
-                infoBox.innerHTML = `
-                    <p class="font-bold text-amber-400 flex items-center gap-1.5">
-                        <i class="fas fa-exclamation-circle"></i> Mode Kasbon Saldo (Batas H+3)
-                    </p>
-                    <p class="text-slate-300">Biaya admin Rp 10.000 per transaksi. Wajib kirim Foto KTP/SIM & Tunggu ACC Admin.</p>
-                `;
+                
                 labelTotal.innerText = "Total Biaya + Admin (Rp 10.000)";
                 
                 updateKasbonFormAccess();
@@ -558,16 +409,6 @@
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
         }
 
-        function setAccKtpAdmin(keyId) {
-            if (!isAdminLoggedIn) return; 
-
-            adminAccRef.set(true);
-
-            if (keyId) {
-                database.ref('kasbon_list/' + keyId).remove();
-            }
-        }
-
         function updateKasbonFormAccess() {
             const btnSubmit = document.getElementById('btn-submit-form');
             const statusText = document.getElementById('status-persyaratan-text');
@@ -593,53 +434,6 @@
                 btnSubmit.disabled = true;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60";
                 btnSubmit.innerHTML = `<i class="fas fa-lock"></i> Menunggu Admin ACC Foto KTP Terlebih Dahulu`;
-            }
-        }
-
-        function bukaModalLoginAdmin() {
-            if (isAdminLoggedIn) {
-                isAdminLoggedIn = false;
-                localStorage.removeItem('pgm_admin_logged_in');
-                updateAdminUi();
-                renderTabel();
-            } else {
-                document.getElementById('input-pin-admin').value = '';
-                document.getElementById('error-pin').classList.add('hidden');
-                const modal = document.getElementById('modal-login');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        }
-
-        function tutupModalLogin() {
-            const modal = document.getElementById('modal-login');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function prosesLoginAdmin() {
-            const pinInput = document.getElementById('input-pin-admin').value;
-            if (pinInput === PIN_ADMIN) {
-                isAdminLoggedIn = true;
-                localStorage.setItem('pgm_admin_logged_in', 'true');
-                tutupModalLogin();
-                updateAdminUi();
-                renderTabel();
-            } else {
-                document.getElementById('error-pin').classList.remove('hidden');
-            }
-        }
-
-        function updateAdminUi() {
-            const btnLabel = document.getElementById('label-admin');
-            const statusMode = document.getElementById('status-mode-admin');
-            
-            if (isAdminLoggedIn) {
-                if (btnLabel) btnLabel.innerText = "Logout Admin";
-                if (statusMode) statusMode.classList.remove('hidden');
-            } else {
-                if (btnLabel) btnLabel.innerText = "Login Admin";
-                if (statusMode) statusMode.classList.add('hidden');
             }
         }
 
@@ -710,9 +504,8 @@
                 status: initialStatus
             });
 
-            let msg = "";
             if (jalurAktif === 'KASBON') {
-                msg += `*HALO ADMIN PGM EXPRESS, SAYA SUDAH MENGAJUKAN KASBON DANA!* 💸\n\n`;
+                let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH MENGAJUKAN KASBON DANA!* 💸\n\n`;
                 msg += `• *Jenis Layanan*: KASBON SALDO DANA (H+3)\n`;
                 msg += `• *Nama Pemohon*: ${nama}\n`;
                 msg += `• *No. DANA Target*: ${dana}\n`;
@@ -722,11 +515,9 @@
                 msg += `• *Jatuh Tempo*: *${jatuhTempoStr}*\n`;
                 msg += `• *Catatan*: ${catatan}\n\n`;
                 msg += `Saya sudah membaca ketentuan denda Rp 2.000/3 hari jika terlambat. Mohon diproses ya min!`;
-
                 window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-                resetFormSetalahSubmit();
             } else {
-                msg += `*HALO ADMIN PGM EXPRESS, SAYA SUDAH BAYAR TOP UP DIRECT VIA QRIS!* 🛍️\n\n`;
+                let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH BAYAR VIA QRIS PGM GAMING!* 🛍️\n\n`;
                 msg += `• *Jenis Layanan*: BELI DIRECT TOP UP (QRIS)\n`;
                 msg += `• *Nama Pembeli*: ${nama}\n`;
                 msg += `• *No. DANA Target*: ${dana}\n`;
@@ -734,83 +525,19 @@
                 msg += `• *Biaya Admin*: Rp 3.500\n`;
                 msg += `• *TOTAL BAYAR*: *Rp ${total.toLocaleString('id-ID')}*\n`;
                 msg += `• *Catatan*: ${catatan}\n\n`;
-                msg += `Berikut saya melampirkan *Bukti Transfer QRIS PGM Gaming*. Mohon segera dikirimkan saldonya ya min!`;
-
-                linkWaDirectTemp = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-                
-                document.getElementById('qris-total-bayar').innerText = `Rp ${total.toLocaleString('id-ID')}`;
-                bukaModalQris();
+                msg += `Saya sudah transfer via QRIS. Berikut bukti tf nya min, mohon segera diproses ya!`;
+                window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             }
-        }
 
-        function bukaModalQris() {
-            const modal = document.getElementById('modal-qris');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            const btnWa = document.getElementById('btn-lanjut-wa-qris');
-            btnWa.onclick = function() {
-                if (linkWaDirectTemp) {
-                    window.open(linkWaDirectTemp, '_blank');
-                    tutupModalQris();
-                    resetFormSetalahSubmit();
-                }
-            };
-        }
-
-        function tutupModalQris() {
-            const modal = document.getElementById('modal-qris');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function resetFormSetalahSubmit() {
             adminAccRef.set(false);
             document.getElementById('form-kasbon').reset();
             if (currentUser) document.getElementById('input-nama').value = currentUser.displayName || '';
             document.getElementById('input-total').value = "Rp 0";
         }
 
-        function setLunasAdmin(keyId, nama, total) {
-            if (!isAdminLoggedIn) return; 
-            database.ref('kasbon_list/' + keyId).update({
-                status: 'LUNAS'
-            });
-            kirimNotifikasiLokal("PGM Express: Tagihan Lunas!", `Tagihan kasbon atas nama ${nama} telah dikonfirmasi LUNAS.`);
-        }
-
-        function bukaModalHapusAdmin(keyId, nama) {
-            if (!isAdminLoggedIn) return; 
-
-            idKasbonYangAkanDihapus = keyId;
-            document.getElementById('teks-hapus-kasbon').innerHTML = `Apakah kamu yakin ingin menghapus nota kasbon atas nama <strong>${nama}</strong> dari rekap server?`;
-            
-            const btnEksekusi = document.getElementById('btn-eksekusi-hapus');
-            btnEksekusi.onclick = function() {
-                if (idKasbonYangAkanDihapus) {
-                    database.ref('kasbon_list/' + idKasbonYangAkanDihapus).remove()
-                        .then(() => {
-                            tutupModalHapus();
-                        });
-                }
-            };
-
-            const modal = document.getElementById('modal-hapus');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function tutupModalHapus() {
-            idKasbonYangAkanDihapus = null;
-            const modal = document.getElementById('modal-hapus');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
         kasbonRef.on('value', (snapshot) => {
             const data = snapshot.val();
             listKasbonGlobal = [];
-            
             if (data) {
                 Object.keys(data).forEach(key => {
                     listKasbonGlobal.unshift({ keyId: key, ...data[key] });
@@ -859,19 +586,9 @@
 
         function renderTabel() {
             const tbody = document.getElementById('tabel-body-kasbon');
-            const notifBadge = document.getElementById('admin-notif-badge');
-            const notifCount = document.getElementById('notif-count');
-            
             if (!tbody) return;
 
             renderPengingatPembeli();
-
-            const kasbonBelumLunasCount = listKasbonGlobal.filter(k => k.status === 'BELUM LUNAS' || k.status === 'MENUNGGU ACC KTP').length;
-            if (notifCount) notifCount.innerText = kasbonBelumLunasCount;
-            if (notifBadge) {
-                if (kasbonBelumLunasCount > 0) notifBadge.classList.remove('hidden');
-                else notifBadge.classList.add('hidden');
-            }
 
             if (listKasbonGlobal.length === 0) {
                 tbody.innerHTML = `
@@ -906,32 +623,13 @@
                     statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">BELUM LUNAS</span>`;
                 }
 
-                let aksiButtons = `
-                    <button onclick="bukaModalLunas('${item.nama}', ${totalAkhir})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer" title="Kirim Bukti via WA">
-                        <i class="fab fa-whatsapp"></i> WA
-                    </button>
-                `;
+                let msgWaBukti = `*KIRIM BUKTI TRANSFER KASBON PGM EXPRESS* 📷\n\nHalo Admin, saya mau mengirimkan bukti transfer tagihan kasbon a.n *${item.nama}* sebesar *Rp ${totalAkhir.toLocaleString('id-ID')}*.`;
 
-                if (isAdminLoggedIn) {
-                    if (isMenungguAcc) {
-                        aksiButtons += `
-                            <button onclick="setAccKtpAdmin('${item.keyId}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-amber-500/20" title="ACC Syarat KTP & Hapus Nota Draf Ini">
-                                <i class="fas fa-check-circle"></i> Set ACC KTP
-                            </button>
-                        `;
-                    } else if (!isLunas) {
-                        aksiButtons += `
-                            <button onclick="setLunasAdmin('${item.keyId}', '${item.nama}', ${totalAkhir})" class="px-2.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-lg shadow-sky-500/20" title="Konfirmasi Pelunasan H+3">
-                                <i class="fas fa-check-circle"></i> Set Lunas
-                            </button>
-                        `;
-                    }
-                    aksiButtons += `
-                        <button onclick="bukaModalHapusAdmin('${item.keyId}', '${item.nama}')" class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/30 font-bold text-[11px] transition-all cursor-pointer" title="Hapus Data Nota">
-                            <i class="fas fa-trash-alt"></i> Hapus
-                        </button>
-                    `;
-                }
+                let aksiButtons = `
+                    <a href="https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWaBukti)}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] transition-all inline-flex items-center gap-1">
+                        <i class="fab fa-whatsapp"></i> WA Admin
+                    </a>
+                `;
 
                 const jenisBadge = item.jenis === 'KASBON' 
                     ? `<span class="text-amber-400 font-bold">[Kasbon]</span> ${item.jatuhTempoStr}`
@@ -948,30 +646,12 @@
                     <td class="p-3 font-mono text-sky-400">${item.dana}</td>
                     <td class="p-3 font-extrabold text-emerald-400">${tampilanTotalTabel}</td>
                     <td class="p-3">${statusBadge}</td>
-                    <td class="p-3 text-center flex items-center justify-center gap-1.5 flex-wrap">
+                    <td class="p-3 text-center">
                         ${aksiButtons}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-        }
-
-        function bukaModalLunas(nama, totalAkhir) {
-            let msgWa = `*KIRIM BUKTI TRANSFER KASBON PGM EXPRESS* 📷\n\n`;
-            msgWa += `Halo Admin, saya mau mengirimkan foto bukti transfer pembayaran tagihan kasbon a.n *${nama}* sebesar *Rp ${totalAkhir.toLocaleString('id-ID')}*.\n\n`;
-            msgWa += `Berikut bukti TF nya min:`;
-
-            document.getElementById('btn-kirim-bukti-wa').href = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`;
-
-            const modal = document.getElementById('modal-bukti');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function tutupModalBukti() {
-            const modal = document.getElementById('modal-bukti');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
         }
     </script>
 </body>
