@@ -12,9 +12,11 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDK (Versi Web CDN) -->
+    <!-- Firebase SDKs (Compat Versi 9.23.0) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
     <style>
         body {
@@ -27,6 +29,23 @@
     </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between pb-12">
+
+    <!-- OVERLAY SCREEN LOCK UNTUK LOGIN GOOGLE -->
+    <div id="google-login-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md">
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-sm w-full text-center space-y-6 shadow-2xl">
+            <div class="w-16 h-16 rounded-2xl bg-sky-500 text-slate-950 font-black text-3xl flex items-center justify-center mx-auto shadow-lg shadow-sky-500/30">
+                P
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-white">PGM <span class="text-sky-400">Express</span></h2>
+                <p class="text-xs text-slate-400 mt-1">Silakan masuk menggunakan Akun Google kamu untuk mengakses layanan transaksi.</p>
+            </div>
+            <button onclick="loginDenganGoogle()" class="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center justify-center gap-3 transition-all cursor-pointer shadow-lg">
+                <i class="fab fa-google text-rose-500 text-base"></i>
+                <span>Masuk dengan Google</span>
+            </button>
+        </div>
+    </div>
 
     <!-- NAVBAR HEADER -->
     <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-4">
@@ -42,6 +61,13 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <!-- PROFIL USER GOOGLE -->
+                <div id="user-profile-badge" class="hidden items-center gap-2 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-xl">
+                    <img id="user-avatar" src="" alt="Avatar" class="w-6 h-6 rounded-full border border-sky-400">
+                    <span id="user-display-name" class="text-xs font-bold text-slate-200">User</span>
+                    <button onclick="logoutGoogle()" class="text-xs text-rose-400 hover:text-rose-300 ml-1" title="Logout Google"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+
                 <div id="admin-notif-badge" class="relative hidden sm:flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl">
                     <i class="fas fa-bell text-amber-400 animate-bounce text-xs"></i>
                     <span class="text-xs font-bold text-slate-200">Kasbon Masuk: <strong id="notif-count" class="text-sky-400">0</strong></span>
@@ -126,7 +152,7 @@
                 <p class="text-slate-300">Biaya admin Rp 3.500 per transaksi. Cepat tanpa syarat dokumen.</p>
             </div>
 
-            <!-- BOX SYARAT KTP DENGAN FITUR NOTA DRAFT SEMENTARA -->
+            <!-- BOX SYARAT KTP -->
             <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
@@ -140,7 +166,6 @@
                     <strong>INSTRUKSI PEMBELI:</strong> Klik tombol di bawah untuk mengirim foto KTP/SIM ke WA Admin. Nota draf sementara <strong>Buyer X</strong> akan masuk ke tabel. Setelah Admin mengecek KTP dan menekan tombol <strong>Set ACC KTP</strong>, nota draf sementara tersebut akan otomatis dihapus dan form pengajuan kasbon kamu di bawah akan terbuka!
                 </p>
                 
-                <!-- TOMBOL KIRIM KTP PEMBELI -->
                 <button type="button" onclick="kirimPersyaratanWA()" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
                     <i class="fab fa-whatsapp text-base"></i> Kirim Foto KTP/SIM Ke WA Admin (Bikin Draf Buyer X)
                 </button>
@@ -317,6 +342,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
         const kasbonRef = database.ref('kasbon_list');
         const adminAccRef = database.ref('admin_ktp_acc'); 
 
@@ -330,6 +356,60 @@
         let listKasbonGlobal = [];
         let isAdminLoggedIn = false;
         let idKasbonYangAkanDihapus = null;
+        let currentUser = null;
+
+        // AUTH & NOTIFIKASI SYSTEM
+        auth.onAuthStateChanged(user => {
+            const overlay = document.getElementById('google-login-overlay');
+            const profileBadge = document.getElementById('user-profile-badge');
+            
+            if (user) {
+                currentUser = user;
+                overlay.classList.add('hidden');
+                profileBadge.classList.remove('hidden');
+                profileBadge.classList.add('flex');
+                
+                document.getElementById('user-avatar').src = user.photoURL || 'https://via.placeholder.com/150';
+                document.getElementById('user-display-name').innerText = user.displayName || 'Pelanggan';
+                document.getElementById('input-nama').value = user.displayName || '';
+
+                mintaIzinNotifikasi();
+            } else {
+                currentUser = null;
+                overlay.classList.remove('hidden');
+                profileBadge.classList.add('hidden');
+            }
+        });
+
+        function loginDenganGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => {
+                alert("Gagal Login Google: " + error.message);
+            });
+        }
+
+        function logoutGoogle() {
+            auth.signOut();
+        }
+
+        function mintaIzinNotifikasi() {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        console.log("Izin Notifikasi HP Diberikan!");
+                    }
+                });
+            }
+        }
+
+        function kirimNotifikasiLokal(judul, isi) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(judul, {
+                    body: isi,
+                    icon: "https://cdn-icons-png.flaticon.com/512/732/732200.png"
+                });
+            }
+        }
 
         window.onload = function() {
             if (localStorage.getItem('pgm_admin_logged_in') === 'true') {
@@ -348,7 +428,13 @@
         };
 
         adminAccRef.on('value', (snapshot) => {
+            const wasApproved = isKtpApprovedByAdmin;
             isKtpApprovedByAdmin = snapshot.val() === true;
+
+            if (!wasApproved && isKtpApprovedByAdmin) {
+                kirimNotifikasiLokal("PGM Express: Status KTP Di-ACC!", "Admin telah meng-ACC foto KTP kamu. Form pengajuan kasbon sekarang dapat diisi!");
+            }
+
             if (jalurAktif === 'KASBON') {
                 updateKasbonFormAccess();
             }
@@ -408,7 +494,6 @@
             hitungTotalAdmin();
         }
 
-        // PEMBELI KLIK KIRIM KTP: BIKIN NOTA DRAFT BUYER X
         function kirimPersyaratanWA() {
             const buyerList = listKasbonGlobal.filter(k => k.nama && k.nama.toLowerCase().includes('buyer'));
             const buyerNumber = buyerList.length + 1;
@@ -441,14 +526,11 @@
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msgWa)}`, '_blank');
         }
 
-        // AKSI ADMIN KLIK "SET ACC KTP": ACC SYARAT & OTOMATIS HAPUS NOTA DRAFT BUYER X
         function setAccKtpAdmin(keyId) {
             if (!isAdminLoggedIn) return; 
 
-            // 1. Set status ACC KTP global menjadi true agar form kasbon pembeli terbuka
             adminAccRef.set(true);
 
-            // 2. Hapus nota draft sementara "Buyer X" dari Firebase jika di-klik dari baris tersebut
             if (keyId) {
                 database.ref('kasbon_list/' + keyId).remove();
             }
@@ -558,7 +640,6 @@
             return { totalAkhir, denda, kelipatanDenda };
         }
 
-        // SETELAH PEMBELI MENGISI FORMULIR LENGKAP: BIKIN NOTA PERMANEN DENGAN NAMA ASLI
         function tambahKasbon(e) {
             e.preventDefault();
 
@@ -582,7 +663,6 @@
                 initialStatus = 'BELUM LUNAS'; 
             }
 
-            // SIMPAN NOTA RESMI/PERMANEN DENGAN DATA NAMA ASLI PEMBELI
             const newPostRef = kasbonRef.push();
             newPostRef.set({
                 id: newPostRef.key,
@@ -624,9 +704,9 @@
 
             window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 
-            // Reset status penguncian form untuk transaksi berikutnya
             adminAccRef.set(false);
             document.getElementById('form-kasbon').reset();
+            if (currentUser) document.getElementById('input-nama').value = currentUser.displayName || '';
             document.getElementById('input-total').value = "Rp 0";
         }
 
@@ -635,6 +715,7 @@
             database.ref('kasbon_list/' + keyId).update({
                 status: 'LUNAS'
             });
+            kirimNotifikasiLokal("PGM Express: Tagihan Lunas!", `Tagihan kasbon atas nama ${nama} telah dikonfirmasi LUNAS.`);
         }
 
         function bukaModalHapusAdmin(keyId, nama) {
@@ -665,7 +746,6 @@
             modal.classList.remove('flex');
         }
 
-        // LISTEN REALTIME REKAP TABEL FIREBASE
         kasbonRef.on('value', (snapshot) => {
             const data = snapshot.val();
             listKasbonGlobal = [];
@@ -771,7 +851,6 @@
                     </button>
                 `;
 
-                // TOMBOL ADMIN: PENCET "SET ACC KTP" PADA BARIS BUYER X UNTUK MENG-ACC SEKALIGUS MENGHAPUS NOTA DRAFT SEMENTARA
                 if (isAdminLoggedIn) {
                     if (isMenungguAcc) {
                         aksiButtons += `
