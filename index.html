@@ -109,7 +109,7 @@
                     <label id="label-jalur-beli" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 cursor-pointer transition-all">
                         <input type="radio" id="radio-beli" name="jenis_transaksi" value="BELI" checked onchange="toggleJalurTransaksi('BELI')" class="hidden">
                         <i class="fas fa-qrcode text-sky-400 text-sm"></i>
-                        <span class="text-xs font-black text-white">Beli Direct via QRIS (Admin 3.500)</span>
+                        <span class="text-xs font-black text-white">Beli Direct via QRIS (Admin 4.000)</span>
                     </label>
 
                     <label id="label-jalur-kasbon" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all">
@@ -155,7 +155,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
                         <i class="fas fa-id-card text-base"></i>
-                        <span>Syarat Wajib Kasbon: Kirim Foto KTP/SIM</span>
+                        <span>Syarat Wajib Kasbon: Kirim Foto KTP/SIM/Kartu Pelajar</span>
                     </div>
                     <span id="status-persyaratan-text" class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">BELUM DI-ACC ADMIN</span>
                 </div>
@@ -191,10 +191,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nominal Saldo DANA (Rp)</label>
-                        <input type="number" id="input-nominal" required min="5000" placeholder="Contoh: 50000" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500" oninput="hitungTotalAdmin()">
+                        <input type="number" id="input-nominal" required min="30000" placeholder="Contoh: 30000" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500" oninput="hitungTotalAdmin()">
                     </div>
                     <div>
-                        <label id="label-total-admin" class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 3.500)</label>
+                        <label id="label-total-admin" class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 40000)</label>
                         <input type="text" id="input-total" readonly value="Rp 0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-sky-400 font-bold cursor-not-allowed">
                     </div>
                 </div>
