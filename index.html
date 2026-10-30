@@ -92,7 +92,7 @@
         </button>
       </div>
 
-      <!-- FORM 2: KASBON (DENGAN SYARAT, EMAIL TERIKAT & UPLOAD IDENTITAS) -->
+      <!-- FORM 2: KASBON (ADMIN 10.000 OTOMATIS & UPLOAD IDENTITAS) -->
       <div id="form-kasbon" class="hidden bg-slate-800 p-5 rounded-2xl border border-slate-700 space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-purple-400">Form Kasbon DANA</h3>
@@ -102,10 +102,11 @@
         <!-- BOX PERSYARATAN KASBON -->
         <div class="p-3 bg-slate-900/90 rounded-lg border border-purple-500/40 text-xs text-purple-200 space-y-1">
           <p class="font-semibold text-purple-400">📌 Ketentuan & Persyaratan Kasbon:</p>
+          <p>• Minimal transaksi kasbon adalah <strong>Rp 10.000</strong>.</p>
+          <p>• Terdapat <strong>Biaya Admin Rp 10.000</strong> per transaksi kasbon.</p>
           <p>• Wajib mengunggah foto kartu identitas (<strong>KTP / SIM / Kartu Pelajar</strong>) sebagai validasi data.</p>
           <p>• Pengajuan kasbon otomatis terikat dengan akun Google yang sedang aktif.</p>
           <p>• Batas waktu pelunasan kasbon adalah <strong>3 hari (H+3)</strong> setelah transaksi disetujui.</p>
-          <p>• Sistem akan mengirimkan notifikasi pengingat pembayaran ke HP kamu secara berkala saat jatuh tempo.</p>
         </div>
         
         <!-- INFORMASI AKUN TERIKAT OTOMATIS -->
@@ -125,7 +126,19 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Nominal Kasbon</label>
-          <input type="number" id="kasbon-amount" placeholder="Minimal: 50000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+          <input type="number" id="kasbon-amount" placeholder="Minimal: 10000" oninput="calculateTotalKasbon()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+        </div>
+
+        <!-- RINCIAN BIAYA ADMIN OTOMATIS -->
+        <div class="p-3 bg-slate-900/60 rounded-lg border border-purple-500/20 text-xs space-y-1">
+          <div class="flex justify-between text-slate-400">
+            <span>Biaya Admin Kasbon:</span>
+            <span class="font-semibold text-purple-300">Rp 10.000 (Otomatis)</span>
+          </div>
+          <div class="flex justify-between text-slate-200 font-bold border-t border-slate-700 pt-1 mt-1">
+            <span>Total Pelunasan (H+3):</span>
+            <span id="kasbon-total-display" class="text-purple-400">Rp 10.000</span>
+          </div>
         </div>
 
         <!-- INPUT FOTO IDENTITAS (KTP / SIM / KARTU PELAJAR) -->
@@ -287,7 +300,16 @@
       window.location.href = `https://wa.me/6285786457121?text=${textWA}`;
     }
 
-    // Helper Konversi File Foto ke String Base64 untuk Disimpan di Firebase Database
+    // Helper Hitung Otomatis Kasbon + Admin 10.000
+    function calculateTotalKasbon() {
+      const amount = parseInt(document.getElementById('kasbon-amount').value) || 0;
+      const adminFee = 10000;
+      const total = amount + adminFee;
+      
+      document.getElementById('kasbon-total-display').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+    }
+
+    // Helper Konversi File Foto ke String Base64 untuk Firebase
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -297,17 +319,24 @@
       });
     }
 
-    // 7. Submit Kasbon (Menyimpan Foto Identitas Langsung ke Database Firebase)
+    // 7. Submit Kasbon (Simpan Email, Admin 10rb & Foto Identitas ke Database)
     async function submitKasbonOrder() {
       if (!currentUser) return alert("Silakan login terlebih dahulu!");
 
       const target = document.getElementById('kasbon-target').value;
-      const amount = document.getElementById('kasbon-amount').value;
+      const amount = parseInt(document.getElementById('kasbon-amount').value) || 0;
       const note = document.getElementById('kasbon-note').value || "-";
       const idCardFile = document.getElementById('kasbon-id-card').files[0];
 
+      const adminFee = 10000;
+      const totalBill = amount + adminFee;
+
       if (!target || !amount) {
         return alert("Harap isi Nomor DANA dan Nominal Kasbon!");
+      }
+
+      if (amount < 10000) {
+        return alert("Nominal kasbon minimal Rp 10.000!");
       }
 
       if (!idCardFile) {
@@ -319,30 +348,32 @@
       btnSubmit.disabled = true;
 
       try {
-        // Konversi foto identitas ke string Base64
         const idCardBase64 = await convertFileToBase64(idCardFile);
 
         const kasbonRef = db.ref('orders/kasbon').push();
         await kasbonRef.set({
           uid: currentUser.uid,
           user_name: currentUser.displayName,
-          user_email: currentUser.email, // Email otomatis terikat
+          user_email: currentUser.email,
           user_photo: currentUser.photoURL,
           targetPhone: target,
           amount: amount,
+          admin_fee: adminFee,
+          total_bill: totalBill,
           note: note,
-          id_card_image: idCardBase64, // Foto identitas otomatis masuk ke Firebase
+          id_card_image: idCardBase64,
           type: "Kasbon H+3",
           status: "Pending",
           dueDate: getDueDate(3),
           timestamp: new Date().toISOString()
         });
 
-        alert(`Pengajuan Kasbon berhasil atas nama ${currentUser.displayName}! Foto identitas telah tersimpan aman di database.`);
+        alert(`Pengajuan Kasbon berhasil atas nama ${currentUser.displayName}! Total tagihan pelunasan: Rp ${totalBill.toLocaleString('id-ID')}.`);
         document.getElementById('kasbon-target').value = '';
         document.getElementById('kasbon-amount').value = '';
         document.getElementById('kasbon-note').value = '';
         document.getElementById('kasbon-id-card').value = '';
+        document.getElementById('kasbon-total-display').innerText = 'Rp 10.000';
       } catch (err) {
         alert("Gagal mengajukan kasbon: " + err.message);
       } finally {
