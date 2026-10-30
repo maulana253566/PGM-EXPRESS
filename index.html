@@ -69,12 +69,11 @@
           <p class="font-semibold text-amber-400">⚠️ Persyaratan Beli Langsung:</p>
           <p>• Jika ingin membeli, harap hubungi owner kami di: <strong>085786457121 (Aji)</strong>.</p>
           <p>• Catatan: Wajib memfotokan/mengirimkan bukti bayar 1 hari sesudah transaksi dibuat.</p>
-          <p>• Catatan: Jika ingin top up E-wallet lain isi permintaan pada "catatan"
-          (Contoh: "TF GOPAY MIN")</p>
+          <p>• Catatan: Jika ingin top up E-wallet lain isi permintaan pada "catatan" (Contoh: "TF GOPAY MIN")</p>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Nomor DANA / Catatan Transaksi</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nomor DANA/E-wallet Penerima</label>
           <input type="text" id="direct-note" placeholder="Masukkan No DANA/E-wallet penerima" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
         </div>
 
@@ -85,7 +84,7 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Catatan Tambahan (Opsional)</label>
-          <input type="text" id="kasbon-note" placeholder="Misal:Contoh: TF GOPAY MIN " class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+          <input type="text" id="direct-extra-note" placeholder="Misal: TF GOPAY MIN" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
         </div>
 
         <button onclick="submitDirectOrder()" class="w-full bg-cyan-500 hover:bg-cyan-400 font-bold py-2.5 rounded-lg text-slate-900 transition">
@@ -93,7 +92,7 @@
         </button>
       </div>
 
-      <!-- FORM 2: KASBON (DENGAN SYARAT & EMAIL TERIKAT) -->
+      <!-- FORM 2: KASBON (DENGAN SYARAT, EMAIL TERIKAT & UPLOAD IDENTITAS) -->
       <div id="form-kasbon" class="hidden bg-slate-800 p-5 rounded-2xl border border-slate-700 space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-purple-400">Form Kasbon DANA</h3>
@@ -103,6 +102,7 @@
         <!-- BOX PERSYARATAN KASBON -->
         <div class="p-3 bg-slate-900/90 rounded-lg border border-purple-500/40 text-xs text-purple-200 space-y-1">
           <p class="font-semibold text-purple-400">📌 Ketentuan & Persyaratan Kasbon:</p>
+          <p>• Wajib mengunggah foto kartu identitas (<strong>KTP / SIM / Kartu Pelajar</strong>) sebagai validasi data.</p>
           <p>• Pengajuan kasbon otomatis terikat dengan akun Google yang sedang aktif.</p>
           <p>• Batas waktu pelunasan kasbon adalah <strong>3 hari (H+3)</strong> setelah transaksi disetujui.</p>
           <p>• Sistem akan mengirimkan notifikasi pengingat pembayaran ke HP kamu secara berkala saat jatuh tempo.</p>
@@ -125,15 +125,22 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Nominal Kasbon</label>
-          <input type="number" id="kasbon-amount" placeholder="minimal: 50000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+          <input type="number" id="kasbon-amount" placeholder="Minimal: 50000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+        </div>
+
+        <!-- INPUT FOTO IDENTITAS (KTP / SIM / KARTU PELAJAR) -->
+        <div>
+          <label class="block text-xs font-medium text-purple-300 mb-1">Upload Kartu Identitas (KTP / SIM / Kartu Pelajar) <span class="text-red-400">*Wajib</span></label>
+          <input type="file" id="kasbon-id-card" accept="image/*" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
+          <p class="text-[10px] text-slate-500 mt-1">*Foto tersimpan otomatis & aman ke sistem database Firebase admin.</p>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Catatan Tambahan (Opsional)</label>
-          <input type="text" id="kasbon-note" placeholder="Misal: Saya lagi butuh/ TF GOPAY MIN" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+          <input type="text" id="kasbon-note" placeholder="Misal: Saya lagi butuh / TF GOPAY MIN" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
         </div>
 
-        <button onclick="submitKasbonOrder()" class="w-full bg-purple-600 hover:bg-purple-500 font-bold py-2.5 rounded-lg text-white transition shadow-lg shadow-purple-900/30">
+        <button onclick="submitKasbonOrder()" id="btn-submit-kasbon" class="w-full bg-purple-600 hover:bg-purple-500 font-bold py-2.5 rounded-lg text-white transition shadow-lg shadow-purple-900/30">
           Kirim Pengajuan Kasbon
         </button>
       </div>
@@ -246,12 +253,13 @@
       }
     }
 
-    // 6. Submit Beli Langsung (Kirim WA ke Aji)
+    // 6. Submit Beli Langsung (Kirim WA ke Owner Aji)
     function submitDirectOrder() {
       if (!currentUser) return alert("Silakan login terlebih dahulu!");
 
       const note = document.getElementById('direct-note').value;
       const amount = document.getElementById('direct-amount').value;
+      const extraNote = document.getElementById('direct-extra-note').value || "-";
 
       if (!note || !amount) {
         return alert("Harap isi No DANA/Catatan dan Nominal terlebih dahulu!");
@@ -263,6 +271,7 @@
         email: currentUser.email,
         note: note,
         amount: amount,
+        extra_note: extraNote,
         type: "Beli Langsung",
         timestamp: new Date().toISOString()
       });
@@ -270,46 +279,76 @@
       const textWA = `Halo Aji (Owner PGM Express), saya mau Beli Langsung:%0A` +
         `• Nama: ${currentUser.displayName}%0A` +
         `• Email: ${currentUser.email}%0A` +
-        `• No DANA / Catatan: ${note}%0A` +
-        `• Nominal: Rp ${amount}%0A%0A` +
+        `• No DANA / Penerima: ${note}%0A` +
+        `• Nominal: Rp ${amount}%0A` +
+        `• Catatan: ${extraNote}%0A%0A` +
         `*Persyaratan:* Saya memahami bahwa bukti bayar (foto/screenshot) wajib dikirimkan 1 hari sesudah transaksi ini.`;
 
       window.location.href = `https://wa.me/6285786457121?text=${textWA}`;
     }
 
-    // 7. Submit Kasbon (Simpan Email Otomatis ke Database)
-    function submitKasbonOrder() {
+    // Helper Konversi File Foto ke String Base64 untuk Disimpan di Firebase Database
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    // 7. Submit Kasbon (Menyimpan Foto Identitas Langsung ke Database Firebase)
+    async function submitKasbonOrder() {
       if (!currentUser) return alert("Silakan login terlebih dahulu!");
 
       const target = document.getElementById('kasbon-target').value;
       const amount = document.getElementById('kasbon-amount').value;
       const note = document.getElementById('kasbon-note').value || "-";
+      const idCardFile = document.getElementById('kasbon-id-card').files[0];
 
       if (!target || !amount) {
         return alert("Harap isi Nomor DANA dan Nominal Kasbon!");
       }
 
-      const kasbonRef = db.ref('orders/kasbon').push();
-      kasbonRef.set({
-        uid: currentUser.uid,
-        user_name: currentUser.displayName,
-        user_email: currentUser.email, // Email otomatis terikat
-        user_photo: currentUser.photoURL,
-        targetPhone: target,
-        amount: amount,
-        note: note,
-        type: "Kasbon H+3",
-        status: "Pending",
-        dueDate: getDueDate(3),
-        timestamp: new Date().toISOString()
-      }).then(() => {
-        alert(`Pengajuan Kasbon berhasil atas nama ${currentUser.displayName} (${currentUser.email})!`);
+      if (!idCardFile) {
+        return alert("Wajib mengunggah foto Kartu Identitas (KTP / SIM / Kartu Pelajar) untuk pengajuan kasbon!");
+      }
+
+      const btnSubmit = document.getElementById('btn-submit-kasbon');
+      btnSubmit.innerText = "Mengunggah Identitas...";
+      btnSubmit.disabled = true;
+
+      try {
+        // Konversi foto identitas ke string Base64
+        const idCardBase64 = await convertFileToBase64(idCardFile);
+
+        const kasbonRef = db.ref('orders/kasbon').push();
+        await kasbonRef.set({
+          uid: currentUser.uid,
+          user_name: currentUser.displayName,
+          user_email: currentUser.email, // Email otomatis terikat
+          user_photo: currentUser.photoURL,
+          targetPhone: target,
+          amount: amount,
+          note: note,
+          id_card_image: idCardBase64, // Foto identitas otomatis masuk ke Firebase
+          type: "Kasbon H+3",
+          status: "Pending",
+          dueDate: getDueDate(3),
+          timestamp: new Date().toISOString()
+        });
+
+        alert(`Pengajuan Kasbon berhasil atas nama ${currentUser.displayName}! Foto identitas telah tersimpan aman di database.`);
         document.getElementById('kasbon-target').value = '';
         document.getElementById('kasbon-amount').value = '';
         document.getElementById('kasbon-note').value = '';
-      }).catch((err) => {
+        document.getElementById('kasbon-id-card').value = '';
+      } catch (err) {
         alert("Gagal mengajukan kasbon: " + err.message);
-      });
+      } finally {
+        btnSubmit.innerText = "Kirim Pengajuan Kasbon";
+        btnSubmit.disabled = false;
+      }
     }
 
     // Helper Tanggal H+3
