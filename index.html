@@ -41,7 +41,7 @@
         <span>Masuk dengan Google</span>
       </button>
       
-      <p id="login-status" class="text-xs text-amber-400 mt-4 hidden">Sedang memproses masuk...</p>
+      <p id="login-status" class="text-xs text-amber-400 mt-4 hidden">Mengalihkan ke Google...</p>
     </div>
 
     <!-- TAMPILAN 2: Dashboard Transaksi (Jika sudah login) -->
@@ -130,7 +130,7 @@
     PGM Express &copy; 2026 - PGM Studio
   </footer>
 
-  <!-- SCRIPT LOGIKA -->
+  <!-- SCRIPT LOGIKA BERSAMA -->
   <script>
     // 1. Konfigurasi Firebase
     const firebaseConfig = {
@@ -153,7 +153,7 @@
 
     let currentUser = null;
 
-    // 2. Observer Status Login Google
+    // 2. Observer Status Login (Mencegah Stuck pada HP)
     auth.onAuthStateChanged((user) => {
       const loginSection = document.getElementById('login-section');
       const appSection = document.getElementById('app-section');
@@ -167,7 +167,7 @@
         document.getElementById('user-name').innerText = user.displayName || "Pembeli";
         document.getElementById('user-photo').src = user.photoURL || "https://via.placeholder.com/150";
         
-        // UPDATE OTOMATIS DATA DI FORM KASBON (Email Terikat)
+        // Update Form Kasbon dengan Email Terikat Otomatis
         document.getElementById('kasbon-user-name').innerText = user.displayName || "Tanpa Nama";
         document.getElementById('kasbon-user-email').innerText = user.email || "Tanpa Email";
         document.getElementById('kasbon-user-photo').src = user.photoURL || "https://via.placeholder.com/150";
@@ -185,20 +185,23 @@
       }
     });
 
-    // 3. Fungsi Login Google (Popup)
+    // Catch Redirect Result setelah login Google
+    auth.getRedirectResult().then((result) => {
+      if (result.user) {
+        console.log("Login sukses via redirect:", result.user);
+      }
+    }).catch((error) => {
+      console.error("Error Redirect Result:", error);
+      document.getElementById('login-status').classList.add('hidden');
+    });
+
+    // 3. Fungsi Login Google via Redirect (Anti-Stuck di Browser HP)
     function handleGoogleLogin() {
       const loginStatus = document.getElementById('login-status');
+      loginStatus.innerText = "Mengalihkan ke Google...";
       loginStatus.classList.remove('hidden');
 
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          loginStatus.innerText = "Login berhasil!";
-        })
-        .catch((error) => {
-          console.error("Gagal Login:", error);
-          alert("Gagal masuk dengan Google: " + error.message);
-          loginStatus.classList.add('hidden');
-        });
+      auth.signInWithRedirect(provider);
     }
 
     // 4. Logout
@@ -206,7 +209,7 @@
       auth.signOut();
     }
 
-    // 5. Ganti Form (Direct / Kasbon)
+    // 5. Pilih Menu Transaksi (Direct / Kasbon)
     function selectType(type) {
       const btnDirect = document.getElementById('btn-direct');
       const btnKasbon = document.getElementById('btn-kasbon');
@@ -228,7 +231,7 @@
       }
     }
 
-    // 6. Submit Beli Langsung (WA Owner)
+    // 6. Submit Beli Langsung (Kirim WA ke Aji)
     function submitDirectOrder() {
       if (!currentUser) return alert("Silakan login terlebih dahulu!");
 
@@ -259,7 +262,7 @@
       window.location.href = `https://wa.me/6285786457121?text=${textWA}`;
     }
 
-    // 7. Submit Kasbon (Menyimpan Email & Detail Lengkap)
+    // 7. Submit Kasbon (Simpan Email Otomatis ke Database)
     function submitKasbonOrder() {
       if (!currentUser) return alert("Silakan login terlebih dahulu!");
 
@@ -271,7 +274,6 @@
         return alert("Harap isi Nomor DANA dan Nominal Kasbon!");
       }
 
-      // Simpan ke Realtime Database lengkap dengan Email Google pembeli
       const kasbonRef = db.ref('orders/kasbon').push();
       kasbonRef.set({
         uid: currentUser.uid,
@@ -283,7 +285,7 @@
         note: note,
         type: "Kasbon H+3",
         status: "Pending",
-        dueDate: getDueDate(3), // Otomatis hitung tanggal jatuh tempo H+3
+        dueDate: getDueDate(3),
         timestamp: new Date().toISOString()
       }).then(() => {
         alert(`Pengajuan Kasbon berhasil atas nama ${currentUser.displayName} (${currentUser.email})!`);
@@ -295,7 +297,7 @@
       });
     }
 
-    // Helper Hitung Tanggal Jatuh Tempo (H+3)
+    // Helper Tanggal H+3
     function getDueDate(days) {
       const d = new Date();
       d.setDate(d.getDate() + days);
