@@ -69,16 +69,23 @@
           <p class="font-semibold text-amber-400">⚠️ Persyaratan Beli Langsung:</p>
           <p>• Jika ingin membeli, harap hubungi owner kami di: <strong>085786457121 (Aji)</strong>.</p>
           <p>• Catatan: Wajib memfotokan/mengirimkan bukti bayar 1 hari sesudah transaksi dibuat.</p>
+          <p>• Catatan: Jika ingin top up E-wallet lain isi permintaan pada "catatan"
+          (Contoh: "TF GOPAY MIN")</p>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Nomor DANA / Catatan Transaksi</label>
-          <input type="text" id="direct-note" placeholder="Masukkan No DANA penerima" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
+          <input type="text" id="direct-note" placeholder="Masukkan No DANA/E-wallet penerima" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Nominal Top Up</label>
-          <input type="number" id="direct-amount" placeholder="Contoh: 20000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
+          <input type="number" id="direct-amount" placeholder="Minimal: 20000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Catatan Tambahan (Opsional)</label>
+          <input type="text" id="kasbon-note" placeholder="Misal:Contoh: TF GOPAY MIN " class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
         </div>
 
         <button onclick="submitDirectOrder()" class="w-full bg-cyan-500 hover:bg-cyan-400 font-bold py-2.5 rounded-lg text-slate-900 transition">
@@ -86,11 +93,19 @@
         </button>
       </div>
 
-      <!-- FORM 2: KASBON (DENGAN EMAIL OTOMATIS TERIKAT) -->
+      <!-- FORM 2: KASBON (DENGAN SYARAT & EMAIL TERIKAT) -->
       <div id="form-kasbon" class="hidden bg-slate-800 p-5 rounded-2xl border border-slate-700 space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-purple-400">Form Kasbon DANA</h3>
           <span class="text-[10px] bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">Jatuh Tempo H+3</span>
+        </div>
+
+        <!-- BOX PERSYARATAN KASBON -->
+        <div class="p-3 bg-slate-900/90 rounded-lg border border-purple-500/40 text-xs text-purple-200 space-y-1">
+          <p class="font-semibold text-purple-400">📌 Ketentuan & Persyaratan Kasbon:</p>
+          <p>• Pengajuan kasbon otomatis terikat dengan akun Google yang sedang aktif.</p>
+          <p>• Batas waktu pelunasan kasbon adalah <strong>3 hari (H+3)</strong> setelah transaksi disetujui.</p>
+          <p>• Sistem akan mengirimkan notifikasi pengingat pembayaran ke HP kamu secara berkala saat jatuh tempo.</p>
         </div>
         
         <!-- INFORMASI AKUN TERIKAT OTOMATIS -->
@@ -104,18 +119,18 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Nomor DANA Penerima</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nomor DANA/E-wallet Penerima</label>
           <input type="text" id="kasbon-target" placeholder="Contoh: 081234567890" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Nominal Kasbon</label>
-          <input type="number" id="kasbon-amount" placeholder="Contoh: 50000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+          <input type="number" id="kasbon-amount" placeholder="minimal: 50000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Catatan Tambahan (Opsional)</label>
-          <input type="text" id="kasbon-note" placeholder="Misal: Janji lunas pas gajian" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
+          <input type="text" id="kasbon-note" placeholder="Misal: Saya lagi butuh/ TF GOPAY MIN" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-400">
         </div>
 
         <button onclick="submitKasbonOrder()" class="w-full bg-purple-600 hover:bg-purple-500 font-bold py-2.5 rounded-lg text-white transition shadow-lg shadow-purple-900/30">
