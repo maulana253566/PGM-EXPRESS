@@ -102,6 +102,17 @@
                 </div>
             </div>
 
+            <!-- KOTAK PERATURAN BELI DIRECT (QRIS / CASH / BUKTI FOTO) -->
+            <div id="box-peraturan-beli" class="bg-sky-950/40 border-2 border-sky-500/40 p-4 rounded-xl space-y-2 text-xs">
+                <p class="font-black text-sky-400 uppercase tracking-wide flex items-center gap-2">
+                    <i class="fas fa-info-circle text-sm"></i> Peraturan Layanan Beli Langsung (Direct):
+                </p>
+                <ul class="list-disc list-inside text-slate-200 space-y-1 leading-relaxed pl-1">
+                    <li>Pembayaran dapat dilakukan secara online <strong>Via QRIS Resmi</strong> atau bayar tunai (<strong>Cash</strong>) ke Owner di <strong>085786457121 (Aji)</strong>.</li>
+                    <li>Wajib melampirkan / mengirimkan <strong>Foto Bukti Pembayaran (Transfer/Cash)</strong> saat konfirmasi pemesanan.</li>
+                </ul>
+            </div>
+
             <!-- QRIS DIRECT -->
             <div id="box-qris-pembayaran-langsung" class="bg-slate-800/80 border-2 border-sky-500/50 p-5 rounded-2xl text-center space-y-3">
                 <div class="flex items-center justify-center gap-2 text-sky-400 font-black text-xs uppercase tracking-wide">
@@ -117,12 +128,26 @@
                 </div>
             </div>
 
+            <!-- KOTAK PERATURAN KASBON (TEMPO 3 HARI / DENDA 2000 / KTP/SIM/PELAJAR) -->
+            <div id="box-peraturan-kasbon" class="hidden bg-rose-950/40 border-2 border-rose-500/40 p-4 rounded-xl space-y-2 text-xs">
+                <p class="font-black text-rose-400 uppercase tracking-wide flex items-center gap-2">
+                    <i class="fas fa-gavel text-sm"></i> Peraturan Syarat & Ketentuan Kasbon Saldo:
+                </p>
+                <ul class="list-disc list-inside text-slate-200 space-y-1.5 leading-relaxed pl-1">
+                    <li>Wajib melampirkan berkas identitas resmi: <strong>KTP, SIM, atau Kartu Pelajar</strong>.</li>
+                    <li>Batas waktu pembayaran (Jatuh Tempo) adalah maksimal <strong>3 Hari (H+3)</strong> setelah disetujui.</li>
+                    <li class="text-amber-300 font-bold">
+                        Denda Keterlambatan: Jika pembayaran melebihi batas waktu 3 hari, akan dikenakan biaya denda sebesar <u>Rp 2.000 per 3 hari keterlambatan</u>.
+                    </li>
+                </ul>
+            </div>
+
             <!-- UPLOAD KTP LANGSUNG KE DATABASE FIREBASE -->
             <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
                         <i class="fas fa-id-card text-base"></i>
-                        <span>Upload Foto KTP/SIM/Kartu Pelajar Ke Database</span>
+                        <span>Upload Foto KTP / SIM / Kartu Pelajar</span>
                     </div>
                     <span id="status-persyaratan-text" class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">BELUM DI-ACC ADMIN</span>
                 </div>
@@ -134,21 +159,21 @@
                 </div>
                 
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    <strong>INSTRUKSI PEMBELI:</strong> Pilih file foto KTP/SIM kamu di bawah, lalu klik <strong>Upload Foto KTP ke Database</strong>. Data akan tersimpan otomatis terikat dengan email Google kamu.
+                    <strong>INSTRUKSI PEMBELI:</strong> Pilih file foto KTP/SIM/Kartu Pelajar kamu di bawah, lalu klik <strong>Upload Foto Identitas ke Database</strong>. Data akan tersimpan otomatis terikat dengan email Google kamu.
                 </p>
 
                 <!-- INPUT FILE KTP -->
                 <div class="space-y-2">
                     <input type="file" id="input-file-ktp" accept="image/*" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
                     <button type="button" id="btn-upload-ktp-db" onclick="uploadKtpKeDatabase()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
-                        <i class="fas fa-cloud-upload-alt text-base"></i> Upload Foto KTP ke Database
+                        <i class="fas fa-cloud-upload-alt text-base"></i> Upload Foto Identitas ke Database
                     </button>
                 </div>
 
                 <div id="box-status-admin-konfirmasi" class="pt-2 border-t border-amber-500/20 flex items-center justify-between">
                     <span class="text-[11px] text-amber-200 font-bold">Status Verifikasi Admin:</span>
                     <span id="badge-verifikasi-admin" class="text-[11px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20">
-                        <i class="fas fa-lock mr-1"></i> Upload KTP Terlebih Dahulu
+                        <i class="fas fa-lock mr-1"></i> Upload Identitas Terlebih Dahulu
                     </span>
                 </div>
             </div>
@@ -183,7 +208,7 @@
                 </div>
 
                 <button type="submit" id="btn-submit-form" class="w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS & Konfirmasi Pembelian
+                    <i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS / Cash & Konfirmasi
                 </button>
             </form>
         </section>
@@ -223,7 +248,7 @@
 
     </main>
 
-    <!-- SCRIPT LOGIKA -->
+    <!-- SCRIPT LOGIKA FIREBASE -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAm-kLBcojA_-mIuyo34Vnt9T7Oo_2jR0A",
@@ -252,7 +277,6 @@
         let listKasbonGlobal = [];
         let currentUser = null;
 
-        // TANGKAP RESULT REDIRECT BIAR GAK STUCK SAAT LOGIN GOOGLE
         auth.getRedirectResult().then((result) => {
             if (result.user) {
                 console.log("Login Redirect Berhasil:", result.user.email);
@@ -262,7 +286,6 @@
             document.getElementById('login-status-info').innerText = "Gagal login: " + error.message;
         });
 
-        // OBSERVER STATUS LOGIN GOOGLE
         auth.onAuthStateChanged(user => {
             const overlay = document.getElementById('google-login-overlay');
             const profileBadge = document.getElementById('user-profile-badge');
@@ -322,7 +345,9 @@
 
             const labelBeli = document.getElementById('label-jalur-beli');
             const labelKasbon = document.getElementById('label-jalur-kasbon');
+            const boxPeraturanBeli = document.getElementById('box-peraturan-beli');
             const boxQrisDirect = document.getElementById('box-qris-pembayaran-langsung');
+            const boxPeraturanKasbon = document.getElementById('box-peraturan-kasbon');
             const boxSyarat = document.getElementById('box-syarat-kasbon');
             const labelTotal = document.getElementById('label-total-admin');
             const btnSubmit = document.getElementById('btn-submit-form');
@@ -331,18 +356,24 @@
                 BIAYA_ADMIN = 3500;
                 labelBeli.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 cursor-pointer transition-all";
                 labelKasbon.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all";
+                
+                boxPeraturanBeli.classList.remove('hidden');
                 boxQrisDirect.classList.remove('hidden');
+                boxPeraturanKasbon.classList.add('hidden');
                 boxSyarat.classList.add('hidden');
                 labelTotal.innerText = "Total Biaya + Admin (Rp 3.500)";
                 
                 btnSubmit.disabled = false;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer";
-                btnSubmit.innerHTML = `<i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS & Konfirmasi Pembelian`;
+                btnSubmit.innerHTML = `<i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS / Cash & Konfirmasi`;
             } else {
                 BIAYA_ADMIN = 10000;
                 labelKasbon.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/10 cursor-pointer transition-all";
                 labelBeli.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all";
+                
+                boxPeraturanBeli.classList.add('hidden');
                 boxQrisDirect.classList.add('hidden');
+                boxPeraturanKasbon.classList.remove('hidden');
                 boxSyarat.classList.remove('hidden');
                 labelTotal.innerText = "Total Biaya + Admin (Rp 10.000)";
                 
@@ -351,7 +382,6 @@
             hitungTotalAdmin();
         }
 
-        // KONVERSI GAMBAR KE BASE64
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -361,7 +391,6 @@
             });
         }
 
-        // UPLOAD FOTO KTP OTOMATIS TERIKAT EMAIL Pembeli
         async function uploadKtpKeDatabase() {
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
 
@@ -374,7 +403,7 @@
             }
 
             const btnUpload = document.getElementById('btn-upload-ktp-db');
-            btnUpload.innerText = "Mengunggah Foto KTP...";
+            btnUpload.innerText = "Mengunggah Foto...";
             btnUpload.disabled = true;
 
             try {
@@ -391,22 +420,22 @@
                     jatuhTempoIso: jatuhTempoDate.toISOString(),
                     jatuhTempoStr: jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
                     nama: namaPembeli,
-                    user_email: currentUser.email, // OTOMATIS TERIKAT EMAIL GOOGLE
+                    user_email: currentUser.email,
                     user_uid: currentUser.uid,
                     dana: '-',
                     nominal: 0,
                     total: 10000,
                     fotoKtpBase64: base64Image,
-                    catatan: 'PENGAJUAN FOTO KTP (TERSIMPAN DI DATABASE)',
+                    catatan: 'PENGAJUAN FOTO IDENTITAS (TERSIMPAN DI DATABASE)',
                     status: 'MENUNGGU ACC KTP'
                 });
 
-                alert(`Foto KTP berhasil terunggah! Terikat dengan email: ${currentUser.email}. Tunggu Admin men-ACC KTP kamu.`);
+                alert(`Foto identitas berhasil terunggah! Terikat dengan email: ${currentUser.email}. Tunggu Admin men-ACC identitas kamu.`);
                 fileInput.value = '';
             } catch (err) {
-                alert("Gagal mengunggah foto KTP: " + err.message);
+                alert("Gagal mengunggah foto identitas: " + err.message);
             } finally {
-                btnUpload.innerText = "Upload Foto KTP ke Database";
+                btnUpload.innerText = "Upload Foto Identitas ke Database";
                 btnUpload.disabled = false;
             }
         }
@@ -417,10 +446,10 @@
             const badgeAdmin = document.getElementById('badge-verifikasi-admin');
 
             if (isKtpApprovedByAdmin) {
-                statusText.innerText = "ACC KTP DITERIMA";
+                statusText.innerText = "ACC DITERIMA";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                 
-                badgeAdmin.innerHTML = `<i class="fas fa-check-circle mr-1"></i> Syarat KTP Telah Di-ACC Admin`;
+                badgeAdmin.innerHTML = `<i class="fas fa-check-circle mr-1"></i> Syarat Identitas Telah Di-ACC Admin`;
                 badgeAdmin.className = "text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20";
 
                 btnSubmit.disabled = false;
@@ -430,12 +459,12 @@
                 statusText.innerText = "BELUM DI-ACC ADMIN";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
 
-                badgeAdmin.innerHTML = `<i class="fas fa-lock mr-1"></i> Menunggu Admin ACC Foto KTP`;
+                badgeAdmin.innerHTML = `<i class="fas fa-lock mr-1"></i> Menunggu Admin ACC Foto Identitas`;
                 badgeAdmin.className = "text-[11px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20";
 
                 btnSubmit.disabled = true;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60";
-                btnSubmit.innerHTML = `<i class="fas fa-lock"></i> Upload KTP & Tunggu Admin ACC Terlebih Dahulu`;
+                btnSubmit.innerHTML = `<i class="fas fa-lock"></i> Upload Identitas & Tunggu Admin ACC Terlebih Dahulu`;
             }
         }
 
@@ -477,7 +506,7 @@
                 jatuhTempoIso: jatuhTempoIso,
                 jatuhTempoStr: jatuhTempoStr,
                 nama: nama,
-                user_email: currentUser.email, // OTOMATIS TERIKAT EMAIL GOOGLE
+                user_email: currentUser.email,
                 user_uid: currentUser.uid,
                 dana: dana,
                 nominal: nominal,
@@ -495,10 +524,11 @@
                 msg += `• *Jatuh Tempo*: *${jatuhTempoStr}*\n`;
                 window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             } else {
-                let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH BAYAR VIA QRIS!* 🛍️\n\n`;
+                let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH BAYAR VIA QRIS / CASH!* 🛍️\n\n`;
                 msg += `• *Nama Pembeli*: ${nama}\n`;
                 msg += `• *Email*: ${currentUser.email}\n`;
                 msg += `• *TOTAL BAYAR*: *Rp ${total.toLocaleString('id-ID')}*\n`;
+                msg += `• *Bukti Foto*: Terlampir via WA Admin\n`;
                 window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             }
 
