@@ -1,273 +1,4 @@
-<!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PGM Express - Top Up & Kasbon Saldo DANA Digital</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Firebase SDKs (Compat Versi 9.23.0) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-</head>
-<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between pb-12">
-
-    <!-- OVERLAY LOGIN GOOGLE -->
-    <div id="google-login-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-sm w-full text-center space-y-6 shadow-2xl">
-            <div class="w-16 h-16 rounded-2xl bg-sky-500 text-slate-950 font-black text-3xl flex items-center justify-center mx-auto shadow-lg shadow-sky-500/30">
-                P
-            </div>
-            <div>
-                <h2 class="text-2xl font-black text-white">PGM <span class="text-sky-400">Express</span></h2>
-                <p class="text-xs text-slate-400 mt-1">Silakan masuk menggunakan Akun Google kamu untuk mengakses layanan transaksi.</p>
-            </div>
-            <button onclick="loginDenganGoogle()" id="btn-login-google" class="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center justify-center gap-3 transition-all cursor-pointer shadow-lg">
-                <i class="fab fa-google text-rose-500 text-base"></i>
-                <span id="btn-login-text">Masuk dengan Google</span>
-            </button>
-            <p id="login-status-info" class="text-[11px] text-amber-400 hidden">Silakan selesaikan login pada jendela popup Google...</p>
-        </div>
-    </div>
-
-    <!-- NAVBAR HEADER -->
-    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-4">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-sky-500 text-slate-950 font-black text-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
-                    P
-                </div>
-                <div>
-                    <h1 class="font-extrabold text-lg text-white tracking-wide">PGM <span class="text-sky-400">Express</span></h1>
-                    <p class="text-[10px] text-slate-400">Layanan Top Up & Kasbon DANA Digital</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <div id="user-profile-badge" class="hidden items-center gap-2 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-xl">
-                    <img id="user-avatar" src="" alt="Avatar" class="w-6 h-6 rounded-full border border-sky-400">
-                    <div class="text-left">
-                        <span id="user-display-name" class="text-xs font-bold text-slate-200 block leading-tight">User</span>
-                        <span id="user-display-email" class="text-[9px] text-slate-400 block leading-tight">email@gmail.com</span>
-                    </div>
-                    <button onclick="logoutGoogle()" class="text-xs text-rose-400 hover:text-rose-300 ml-1" title="Logout Google"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
-
-                <a href="https://wa.me/6283157787231" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all">
-                    <i class="fab fa-whatsapp text-sm"></i>
-                    <span>Admin WA</span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-6xl mx-auto px-4 py-8 space-y-8 flex-1 w-full">
-
-        <section class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
-            <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-wallet text-sky-400"></i> Form Transaksi DANA
-                </h2>
-                <p class="text-xs text-slate-400 mt-1">Pilih jenis layanan transaksi yang kamu butuhkan di bawah ini.</p>
-            </div>
-
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-300 uppercase">Pilih Layanan</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <label id="label-jalur-beli" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 cursor-pointer transition-all">
-                        <input type="radio" id="radio-beli" name="jenis_transaksi" value="BELI" checked onchange="toggleJalurTransaksi('BELI')" class="hidden">
-                        <i class="fas fa-qrcode text-sky-400 text-sm"></i>
-                        <span class="text-xs font-black text-white">Beli Direct via QRIS (Admin 3.500)</span>
-                    </label>
-
-                    <label id="label-jalur-kasbon" class="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all">
-                        <input type="radio" id="radio-kasbon" name="jenis_transaksi" value="KASBON" onchange="toggleJalurTransaksi('KASBON')" class="hidden">
-                        <i class="fas fa-hand-holding-usd text-amber-400 text-sm"></i>
-                        <span class="text-xs font-black text-slate-400">Kasbon Saldo (H+3)</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- KOTAK PERATURAN BELI DIRECT -->
-            <div id="box-peraturan-beli" class="bg-sky-950/40 border-2 border-sky-500/40 p-4 rounded-xl space-y-2 text-xs">
-                <p class="font-black text-sky-400 uppercase tracking-wide flex items-center gap-2">
-                    <i class="fas fa-info-circle text-sm"></i> Peraturan Layanan Beli Langsung (Direct):
-                </p>
-                <ul class="list-disc list-inside text-slate-200 space-y-1 leading-relaxed pl-1">
-                    <li>Pembayaran dapat dilakukan secara online <strong>Via QRIS Resmi</strong> atau bayar tunai (<strong>Cash</strong>) ke Owner di <strong>085786457121 (Aji)</strong>.</li>
-                    <li>Wajib melampirkan / mengirimkan <strong>Foto Bukti Pembayaran (Transfer/Cash)</strong> saat konfirmasi pemesanan.</li>
-                </ul>
-            </div>
-
-            <!-- QRIS DIRECT -->
-            <div id="box-qris-pembayaran-langsung" class="bg-slate-800/80 border-2 border-sky-500/50 p-5 rounded-2xl text-center space-y-3">
-                <div class="flex items-center justify-center gap-2 text-sky-400 font-black text-xs uppercase tracking-wide">
-                    <i class="fas fa-qrcode text-lg"></i>
-                    <span>Scan QRIS Resmi PGM Gaming</span>
-                </div>
-                <div class="bg-white p-3 rounded-2xl border border-slate-700 shadow-lg inline-block mx-auto">
-                    <img src="qris.jpg" alt="QRIS PGM Gaming" class="w-52 h-auto rounded-xl mx-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/200?text=Gambar+QRIS+Tidak+Ada';">
-                </div>
-                <div class="text-[11px] text-slate-300 space-y-1">
-                    <p class="font-bold text-white">NMID: ID1026527194173</p>
-                    <p class="text-slate-400">A.n <strong class="text-sky-300">PGM Gaming</strong> (All E-Wallet & Bank)</p>
-                    <p class="text-amber-400 text-[10px] italic pt-1 font-semibold">Jika tidak ada gambar QRIS silakan hubungi admin.</p>
-                </div>
-            </div>
-
-            <!-- KOTAK PERATURAN KASBON -->
-            <div id="box-peraturan-kasbon" class="hidden bg-rose-950/40 border-2 border-rose-500/40 p-4 rounded-xl space-y-2 text-xs">
-                <p class="font-black text-rose-400 uppercase tracking-wide flex items-center gap-2">
-                    <i class="fas fa-gavel text-sm"></i> Peraturan Syarat & Ketentuan Kasbon Saldo:
-                </p>
-                <ul class="list-disc list-inside text-slate-200 space-y-1.5 leading-relaxed pl-1">
-                    <li>Wajib melampirkan berkas identitas resmi: <strong>KTP, SIM, atau Kartu Pelajar</strong>.</li>
-                    <li>Batas waktu pembayaran (Jatuh Tempo) adalah maksimal <strong>3 Hari (H+3)</strong> setelah disetujui.</li>
-                    <li class="text-amber-300 font-bold">
-                        Denda Keterlambatan: Jika pembayaran melebihi batas waktu 3 hari, akan dikenakan biaya denda sebesar <u>Rp 2.000 per 3 hari keterlambatan</u>.
-                    </li>
-                </ul>
-            </div>
-
-            <!-- UPLOAD KTP LANGSUNG KE DATABASE FIREBASE -->
-            <div id="box-syarat-kasbon" class="hidden bg-amber-500/10 border-2 border-amber-500/40 p-4 rounded-xl space-y-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
-                        <i class="fas fa-id-card text-base"></i>
-                        <span>Upload Foto KTP / SIM / Kartu Pelajar</span>
-                    </div>
-                    <span id="status-persyaratan-text" class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">BELUM DI-ACC ADMIN</span>
-                </div>
-
-                <!-- INFO EMAIL TERIKAT -->
-                <div class="p-2.5 bg-slate-900/90 rounded-lg border border-amber-500/30 flex items-center justify-between text-xs">
-                    <span class="text-slate-400">Akun Email Terikat:</span>
-                    <span id="bound-email-display" class="font-bold text-amber-300">Memuat email...</span>
-                </div>
-                
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    <strong>INSTRUKSI PEMBELI:</strong> Masukkan Nomor WhatsApp aktif kamu dan pilih file foto KTP/SIM/Kartu Pelajar, lalu klik <strong>Upload Foto Identitas ke Database</strong>. Data akan tersimpan otomatis terikat dengan akun kamu.
-                </p>
-
-                <!-- INPUT NOMOR TELEPON WHATSAPP PEMBELI -->
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Nomor WhatsApp aktif untuk verifikasi</label>
-                        <input type="number" id="input-wa-ktp" required placeholder="Contoh: 081234567890" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-
-                    <!-- INPUT FILE KTP -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Pilih File Foto KTP / SIM / Kartu Pelajar</label>
-                        <input type="file" id="input-file-ktp" accept="image/*" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
-                    </div>
-
-                    <button type="button" id="btn-upload-ktp-db" onclick="uploadKtpKeDatabase()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
-                        <i class="fas fa-cloud-upload-alt text-base"></i> Upload Foto Identitas ke Database
-                    </button>
-                </div>
-
-                <div id="box-status-admin-konfirmasi" class="pt-2 border-t border-amber-500/20 flex items-center justify-between">
-                    <span class="text-[11px] text-amber-200 font-bold">Status Verifikasi Admin:</span>
-                    <span id="badge-verifikasi-admin" class="text-[11px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20">
-                        <i class="fas fa-lock mr-1"></i> Upload Identitas Terlebih Dahulu
-                    </span>
-                </div>
-            </div>
-
-            <!-- FORM PENGAJUAN -->
-            <form id="form-kasbon" onsubmit="tambahKasbon(event)" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nama Pemohon / Pelanggan</label>
-                        <input type="text" id="input-nama" required placeholder="Masukkan nama lengkap..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nomor WhatsApp (Aktif)</label>
-                        <input type="number" id="input-wa-form" required placeholder="Contoh: 081234567890" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nomor DANA Target</label>
-                        <input type="number" id="input-dana" required placeholder="Contoh: 083157787231" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nominal Saldo DANA (Rp)</label>
-                        <input type="number" id="input-nominal" required min="10000" placeholder="Contoh: 10000" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500" oninput="hitungTotalAdmin()">
-                    </div>
-                </div>
-
-                <div>
-                    <label id="label-total-admin" class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 3.500)</label>
-                    <input type="text" id="input-total" readonly value="Rp 0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-sky-400 font-bold cursor-not-allowed">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Catatan / Keterangan</label>
-                    <textarea id="input-catatan" placeholder="Catatan opsional..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500" rows="2"></textarea>
-                </div>
-
-                <button type="submit" id="btn-submit-form" class="w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS / Cash & Konfirmasi
-                </button>
-            </form>
-        </section>
-
-        <!-- REKAP TABEL DATA ONLINE -->
-        <section class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                <div>
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fas fa-database text-emerald-400"></i> Rekap Tagihan & Kasbon Online
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Terhubung langsung secara otomatis (Real-Time Database).</p>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto no-scrollbar">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-800 text-slate-200 uppercase text-[10px] font-bold tracking-wider">
-                        <tr>
-                            <th class="p-3">Tgl Pinjam</th>
-                            <th class="p-3">Jenis / Tempo</th>
-                            <th class="p-3">Nama Pemohon & Email</th>
-                            <th class="p-3">No. WA</th>
-                            <th class="p-3">No. DANA</th>
-                            <th class="p-3">Total Tagihan</th>
-                            <th class="p-3">Status Verifikasi</th>
-                            <th class="p-3 text-center">Aksi Pelanggan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabel-body-kasbon" class="divide-y divide-slate-800">
-                        <tr>
-                            <td colspan="8" class="text-center py-8 text-slate-500 italic text-xs">Menghubungkan ke server Firebase...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- SCRIPT LOGIKA FIREBASE -->
-    <script>
-        const firebaseConfig = {
+const firebaseConfig = {
             apiKey: "AIzaSyAm-kLBcojA_-mIuyo34Vnt9T7Oo_2jR0A",
             authDomain: "pgm-express.firebaseapp.com",
             databaseURL: "https://pgm-express-default-rtdb.firebaseio.com",
@@ -290,7 +21,7 @@
         const ADMIN_WA_NUMBER = "6283157787231";
         let jalurAktif = "BELI"; 
         let BIAYA_ADMIN = 3500;
-        let isKtpApprovedByAdmin = false;
+        let isKtpApprovedByAdmin = false; // DEFAULT MATI/TERKUNCI
         let listKasbonGlobal = [];
         let currentUser = null;
 
@@ -317,7 +48,6 @@
             }
         });
 
-        // LOGIN DENGAN POPUP FIREBASE (BEBAS STUCK DI GITHUB PAGES)
         function loginDenganGoogle() {
             const btnText = document.getElementById('btn-login-text');
             const infoStatus = document.getElementById('login-status-info');
@@ -325,15 +55,12 @@
             infoStatus.classList.remove('hidden');
 
             const provider = new firebase.auth.GoogleAuthProvider();
-            
             auth.signInWithPopup(provider)
-                .then((result) => {
-                    console.log("Login Popup Berhasil:", result.user.email);
+                .then(() => {
                     infoStatus.classList.add('hidden');
                     btnText.innerText = "Masuk dengan Google";
                 })
                 .catch((error) => {
-                    console.error("Error Login Popup:", error);
                     alert("Gagal login Google: " + error.message);
                     infoStatus.classList.add('hidden');
                     btnText.innerText = "Masuk dengan Google";
@@ -353,9 +80,16 @@
             }
         };
 
+        // LISTENER HANYA MEMBUKA FORM JIKA ADMIN SUDAH MENGKLIK ACC
         adminAccRef.on('value', (snapshot) => {
             const val = snapshot.val();
-            isKtpApprovedByAdmin = (typeof val === 'boolean') ? val : (val && val.isAcc === true);
+            // Cek apakah Admin menyetujui akun ini
+            if (val && typeof val === 'object') {
+                isKtpApprovedByAdmin = (val.isAcc === true);
+            } else {
+                isKtpApprovedByAdmin = (val === true);
+            }
+
             if (jalurAktif === 'KASBON') {
                 updateKasbonFormAccess();
             }
@@ -372,7 +106,6 @@
             const boxPeraturanKasbon = document.getElementById('box-peraturan-kasbon');
             const boxSyarat = document.getElementById('box-syarat-kasbon');
             const labelTotal = document.getElementById('label-total-admin');
-            const btnSubmit = document.getElementById('btn-submit-form');
 
             if (jenis === 'BELI') {
                 BIAYA_ADMIN = 3500;
@@ -385,6 +118,7 @@
                 boxSyarat.classList.add('hidden');
                 labelTotal.innerText = "Total Biaya + Admin (Rp 3.500)";
                 
+                const btnSubmit = document.getElementById('btn-submit-form');
                 btnSubmit.disabled = false;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer";
                 btnSubmit.innerHTML = `<i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS / Cash & Konfirmasi`;
@@ -399,6 +133,7 @@
                 boxSyarat.classList.remove('hidden');
                 labelTotal.innerText = "Total Biaya + Admin (Rp 10.000)";
                 
+                // PAKSA PERIKSA STATUS KUNCIAN SAAT PILIH KASBON
                 updateKasbonFormAccess();
             }
             hitungTotalAdmin();
@@ -413,6 +148,7 @@
             });
         }
 
+        // FUNGSI UPLOAD KTP (TIDAK MEMBUKA KUNCIAN FORM)
         async function uploadKtpKeDatabase() {
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
 
@@ -436,15 +172,12 @@
                 const base64Image = await convertFileToBase64(file);
                 const sekarang = new Date();
                 const tanggalPinjamStr = sekarang.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
-                const jatuhTempoDate = new Date(sekarang.getTime() + (3 * 24 * 60 * 60 * 1000));
 
                 const newPostRef = kasbonRef.push();
                 await newPostRef.set({
                     id: newPostRef.key,
                     jenis: 'KASBON',
                     tanggal: tanggalPinjamStr,
-                    jatuhTempoIso: jatuhTempoDate.toISOString(),
-                    jatuhTempoStr: jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
                     nama: namaPembeli,
                     noHp: noWaInput,
                     whatsapp: noWaInput,
@@ -454,29 +187,35 @@
                     nominal: 0,
                     total: 10000,
                     fotoKtpBase64: base64Image,
-                    catatan: 'PENGAJUAN FOTO IDENTITAS (TERSIMPAN DI DATABASE)',
+                    catatan: 'PENGAJUAN FOTO KTP (MENUNGGU ACC ADMIN)',
                     status: 'MENUNGGU ACC KTP',
                     waAccSent: false
                 });
 
                 document.getElementById('input-wa-form').value = noWaInput;
 
-                alert(`Foto identitas & Nomor WA (${noWaInput}) berhasil terunggah! Terikat dengan email: ${currentUser.email}. Bot WA akan otomatis mengirim notifikasi setelah di-ACC oleh Admin.`);
+                // PASTIKAN SAKLAR ADMIN KASBON TETAP TERKUNCI SETELAH UPLOAD
+                adminAccRef.set(false);
+
+                alert(`Foto KTP berhasil terunggah!\n\nStatus saat ini: MENUNGGU ACC ADMIN.\nBot WA akan menge-chat nomor ${noWaInput} setelah Admin menyetujui, dan tombol Form Kasbon di bawah baru akan terbuka.`);
                 fileInput.value = '';
             } catch (err) {
                 alert("Gagal mengunggah foto identitas: " + err.message);
             } finally {
                 btnUpload.innerText = "Upload Foto Identitas ke Database";
                 btnUpload.disabled = false;
+                updateKasbonFormAccess(); // Pastikan tombol bawah tetap mati
             }
         }
 
+        // KUNCI MATI TOMBOL FORM JIKA BELUM DI-ACC ADMIN
         function updateKasbonFormAccess() {
             const btnSubmit = document.getElementById('btn-submit-form');
             const statusText = document.getElementById('status-persyaratan-text');
             const badgeAdmin = document.getElementById('badge-verifikasi-admin');
 
             if (isKtpApprovedByAdmin) {
+                // HANYA JIKA ADMIN SUDAH KLIK SET ACC KTP
                 statusText.innerText = "ACC DITERIMA";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                 
@@ -487,6 +226,7 @@
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer";
                 btnSubmit.innerHTML = `<i class="fas fa-paper-plane"></i> Kirim Form Kasbon Ke Admin`;
             } else {
+                // TERKUNCI MATI
                 statusText.innerText = "BELUM DI-ACC ADMIN";
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
 
@@ -508,6 +248,9 @@
         function tambahKasbon(e) {
             e.preventDefault();
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
+            if (!isKtpApprovedByAdmin && jalurAktif === 'KASBON') {
+                return alert("Form Kasbon masih terkunci! Tunggu hingga Admin meng-ACC Foto KTP kamu.");
+            }
 
             const nama = document.getElementById('input-nama').value;
             const noWa = document.getElementById('input-wa-form').value;
@@ -568,6 +311,7 @@
                 window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             }
 
+            // KUNCI KEMBALI FORM KASBON
             adminAccRef.set(false);
             document.getElementById('form-kasbon').reset();
             if (currentUser) document.getElementById('input-nama').value = currentUser.displayName || '';
@@ -605,7 +349,7 @@
 
                 let statusBadge = "";
                 if (isLunas) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LUNAS</span>`;
-                else if (isAcc) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"><i class="fas fa-check-circle mr-1"></i>KTP ACTIVATED</span>`;
+                else if (isAcc) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"><i class="fas fa-check-circle mr-1"></i>ACC KTP ACTIVATED</span>`;
                 else if (isMenungguAcc) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse"><i class="fas fa-clock mr-1"></i>MENUNGGU ACC KTP</span>`;
                 else statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">BELUM LUNAS</span>`;
 
@@ -629,6 +373,3 @@
                 tbody.appendChild(tr);
             });
         }
-    </script>
-</body>
-</html>
