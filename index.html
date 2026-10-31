@@ -39,7 +39,7 @@
                 <i class="fab fa-google text-rose-500 text-base"></i>
                 <span id="btn-login-text">Masuk dengan Google</span>
             </button>
-            <p id="login-status-info" class="text-[11px] text-amber-400 hidden">Sedang mengalihkan ke Google...</p>
+            <p id="login-status-info" class="text-[11px] text-amber-400 hidden">Silakan selesaikan login pada jendela popup Google...</p>
         </div>
     </div>
 
@@ -120,12 +120,12 @@
                     <span>Scan QRIS Resmi PGM Gaming</span>
                 </div>
                 <div class="bg-white p-3 rounded-2xl border border-slate-700 shadow-lg inline-block mx-auto">
-                    <img src="qris.jpg" alt="QRIS PGM Gaming" class="w-52 h-auto rounded-xl mx-auto object-contain">
+                    <img src="qris.jpg" alt="QRIS PGM Gaming" class="w-52 h-auto rounded-xl mx-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/200?text=Gambar+QRIS+Tidak+Ada';">
                 </div>
-                <div class="text-[11px] text-slate-300 space-y-0.5">
+                <div class="text-[11px] text-slate-300 space-y-1">
                     <p class="font-bold text-white">NMID: ID1026527194173</p>
-                    <p class="text-slate-400">A.n <strong class="text-sky-300">PGM Gaming</strong> (All E-Wallet & Bank) 
-                    jika tidak ada gambar qris bisa hubungi admin</p>
+                    <p class="text-slate-400">A.n <strong class="text-sky-300">PGM Gaming</strong> (All E-Wallet & Bank)</p>
+                    <p class="text-amber-400 text-[10px] italic pt-1 font-semibold">Jika tidak ada gambar QRIS silakan hubungi admin.</p>
                 </div>
             </div>
 
@@ -160,13 +160,13 @@
                 </div>
                 
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    <strong>INSTRUKSI PEMBELI:</strong> Masukkan Nomor WhatsApp aktif kamu dan pilih file foto KTP/SIM/Kartu Pelajar, lalu klik <strong>Upload Foto Identitas ke Database</strong>. Bot WA akan otomatis mengirim notifikasi ACC ke nomor tersebut saat disetujui Admin.
+                    <strong>INSTRUKSI PEMBELI:</strong> Masukkan Nomor WhatsApp aktif kamu dan pilih file foto KTP/SIM/Kartu Pelajar, lalu klik <strong>Upload Foto Identitas ke Database</strong>. Data akan tersimpan otomatis terikat dengan akun kamu.
                 </p>
 
                 <!-- INPUT NOMOR TELEPON WHATSAPP PEMBELI -->
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Nomor WhatsApp Aktif (Untuk Notifikasi ACC Bot WA)</label>
+                        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Nomor WhatsApp aktif untuk verifikasi</label>
                         <input type="number" id="input-wa-ktp" required placeholder="Contoh: 081234567890" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
 
@@ -294,15 +294,6 @@
         let listKasbonGlobal = [];
         let currentUser = null;
 
-        auth.getRedirectResult().then((result) => {
-            if (result.user) {
-                console.log("Login Redirect Berhasil:", result.user.email);
-            }
-        }).catch((error) => {
-            console.error("Error Login Redirect:", error);
-            document.getElementById('login-status-info').innerText = "Gagal login: " + error.message;
-        });
-
         auth.onAuthStateChanged(user => {
             const overlay = document.getElementById('google-login-overlay');
             const profileBadge = document.getElementById('user-profile-badge');
@@ -326,14 +317,27 @@
             }
         });
 
+        // LOGIN DENGAN POPUP FIREBASE (BEBAS STUCK DI GITHUB PAGES)
         function loginDenganGoogle() {
             const btnText = document.getElementById('btn-login-text');
             const infoStatus = document.getElementById('login-status-info');
-            btnText.innerText = "Mengalihkan...";
+            btnText.innerText = "Membuka Popup...";
             infoStatus.classList.remove('hidden');
 
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithRedirect(provider);
+            
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    console.log("Login Popup Berhasil:", result.user.email);
+                    infoStatus.classList.add('hidden');
+                    btnText.innerText = "Masuk dengan Google";
+                })
+                .catch((error) => {
+                    console.error("Error Login Popup:", error);
+                    alert("Gagal login Google: " + error.message);
+                    infoStatus.classList.add('hidden');
+                    btnText.innerText = "Masuk dengan Google";
+                });
         }
 
         function logoutGoogle() { auth.signOut(); }
@@ -418,7 +422,7 @@
             const namaPembeli = document.getElementById('input-nama').value || currentUser.displayName;
 
             if (!noWaInput) {
-                return alert("Harap masukkan Nomor WhatsApp aktif kamu terlebih dahulu!");
+                return alert("Harap masukkan Nomor WhatsApp aktif untuk verifikasi terlebih dahulu!");
             }
             if (!file) {
                 return alert("Harap pilih file foto KTP/SIM/Kartu Pelajar terlebih dahulu!");
@@ -455,10 +459,9 @@
                     waAccSent: false
                 });
 
-                // Isi juga otomatis input nomor WA pada form di bawahnya
                 document.getElementById('input-wa-form').value = noWaInput;
 
-                alert(`Foto identitas & Nomor WA (${noWaInput}) berhasil terunggah! Terikat dengan email: ${currentUser.email}. Bot WA akan otomatis mengirim notifikasi aktivasi setelah di-ACC oleh Admin.`);
+                alert(`Foto identitas & Nomor WA (${noWaInput}) berhasil terunggah! Terikat dengan email: ${currentUser.email}. Bot WA akan otomatis mengirim notifikasi setelah di-ACC oleh Admin.`);
                 fileInput.value = '';
             } catch (err) {
                 alert("Gagal mengunggah foto identitas: " + err.message);
