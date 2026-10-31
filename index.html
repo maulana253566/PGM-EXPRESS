@@ -102,7 +102,7 @@
                 </div>
             </div>
 
-            <!-- KOTAK PERATURAN BELI DIRECT (QRIS / CASH / BUKTI FOTO) -->
+            <!-- KOTAK PERATURAN BELI DIRECT -->
             <div id="box-peraturan-beli" class="bg-sky-950/40 border-2 border-sky-500/40 p-4 rounded-xl space-y-2 text-xs">
                 <p class="font-black text-sky-400 uppercase tracking-wide flex items-center gap-2">
                     <i class="fas fa-info-circle text-sm"></i> Peraturan Layanan Beli Langsung (Direct):
@@ -128,7 +128,7 @@
                 </div>
             </div>
 
-            <!-- KOTAK PERATURAN KASBON (TEMPO 3 HARI / DENDA 2000 / KTP/SIM/PELAJAR) -->
+            <!-- KOTAK PERATURAN KASBON -->
             <div id="box-peraturan-kasbon" class="hidden bg-rose-950/40 border-2 border-rose-500/40 p-4 rounded-xl space-y-2 text-xs">
                 <p class="font-black text-rose-400 uppercase tracking-wide flex items-center gap-2">
                     <i class="fas fa-gavel text-sm"></i> Peraturan Syarat & Ketentuan Kasbon Saldo:
@@ -159,12 +159,22 @@
                 </div>
                 
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    <strong>INSTRUKSI PEMBELI:</strong> Pilih file foto KTP/SIM/Kartu Pelajar kamu di bawah, lalu klik <strong>Upload Foto Identitas ke Database</strong>. Data akan tersimpan otomatis terikat dengan email Google kamu.
+                    <strong>INSTRUKSI PEMBELI:</strong> Masukkan Nomor WhatsApp aktif kamu dan pilih file foto KTP/SIM/Kartu Pelajar, lalu klik <strong>Upload Foto Identitas ke Database</strong>. Bot WA akan otomatis mengirim notifikasi ACC ke nomor tersebut saat disetujui Admin.
                 </p>
 
-                <!-- INPUT FILE KTP -->
-                <div class="space-y-2">
-                    <input type="file" id="input-file-ktp" accept="image/*" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
+                <!-- INPUT NOMOR TELEPON WHATSAPP PEMBELI -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Nomor WhatsApp Aktif (Untuk Notifikasi ACC Bot WA)</label>
+                        <input type="number" id="input-wa-ktp" required placeholder="Contoh: 081234567890" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <!-- INPUT FILE KTP -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Pilih File Foto KTP / SIM / Kartu Pelajar</label>
+                        <input type="file" id="input-file-ktp" accept="image/*" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
+                    </div>
+
                     <button type="button" id="btn-upload-ktp-db" onclick="uploadKtpKeDatabase()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
                         <i class="fas fa-cloud-upload-alt text-base"></i> Upload Foto Identitas ke Database
                     </button>
@@ -186,20 +196,25 @@
                         <input type="text" id="input-nama" required placeholder="Masukkan nama lengkap..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nomor DANA Target</label>
-                        <input type="number" id="input-dana" required placeholder="Contoh: 083157787231" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nomor WhatsApp (Aktif)</label>
+                        <input type="number" id="input-wa-form" required placeholder="Contoh: 081234567890" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nomor DANA Target</label>
+                        <input type="number" id="input-dana" required placeholder="Contoh: 083157787231" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500">
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Nominal Saldo DANA (Rp)</label>
                         <input type="number" id="input-nominal" required min="10000" placeholder="Contoh: 10000" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500" oninput="hitungTotalAdmin()">
                     </div>
-                    <div>
-                        <label id="label-total-admin" class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 3.500)</label>
-                        <input type="text" id="input-total" readonly value="Rp 0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-sky-400 font-bold cursor-not-allowed">
-                    </div>
+                </div>
+
+                <div>
+                    <label id="label-total-admin" class="block text-xs font-bold text-slate-300 uppercase mb-1">Total Biaya + Admin (Rp 3.500)</label>
+                    <input type="text" id="input-total" readonly value="Rp 0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-sky-400 font-bold cursor-not-allowed">
                 </div>
 
                 <div>
@@ -231,6 +246,7 @@
                             <th class="p-3">Tgl Pinjam</th>
                             <th class="p-3">Jenis / Tempo</th>
                             <th class="p-3">Nama Pemohon & Email</th>
+                            <th class="p-3">No. WA</th>
                             <th class="p-3">No. DANA</th>
                             <th class="p-3">Total Tagihan</th>
                             <th class="p-3">Status Verifikasi</th>
@@ -239,7 +255,7 @@
                     </thead>
                     <tbody id="tabel-body-kasbon" class="divide-y divide-slate-800">
                         <tr>
-                            <td colspan="7" class="text-center py-8 text-slate-500 italic text-xs">Menghubungkan ke server Firebase...</td>
+                            <td colspan="8" class="text-center py-8 text-slate-500 italic text-xs">Menghubungkan ke server Firebase...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -333,7 +349,8 @@
         };
 
         adminAccRef.on('value', (snapshot) => {
-            isKtpApprovedByAdmin = snapshot.val() === true;
+            const val = snapshot.val();
+            isKtpApprovedByAdmin = (typeof val === 'boolean') ? val : (val && val.isAcc === true);
             if (jalurAktif === 'KASBON') {
                 updateKasbonFormAccess();
             }
@@ -394,10 +411,14 @@
         async function uploadKtpKeDatabase() {
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
 
+            const noWaInput = document.getElementById('input-wa-ktp').value;
             const fileInput = document.getElementById('input-file-ktp');
             const file = fileInput.files[0];
             const namaPembeli = document.getElementById('input-nama').value || currentUser.displayName;
 
+            if (!noWaInput) {
+                return alert("Harap masukkan Nomor WhatsApp aktif kamu terlebih dahulu!");
+            }
             if (!file) {
                 return alert("Harap pilih file foto KTP/SIM/Kartu Pelajar terlebih dahulu!");
             }
@@ -420,6 +441,8 @@
                     jatuhTempoIso: jatuhTempoDate.toISOString(),
                     jatuhTempoStr: jatuhTempoDate.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
                     nama: namaPembeli,
+                    noHp: noWaInput,
+                    whatsapp: noWaInput,
                     user_email: currentUser.email,
                     user_uid: currentUser.uid,
                     dana: '-',
@@ -427,10 +450,14 @@
                     total: 10000,
                     fotoKtpBase64: base64Image,
                     catatan: 'PENGAJUAN FOTO IDENTITAS (TERSIMPAN DI DATABASE)',
-                    status: 'MENUNGGU ACC KTP'
+                    status: 'MENUNGGU ACC KTP',
+                    waAccSent: false
                 });
 
-                alert(`Foto identitas berhasil terunggah! Terikat dengan email: ${currentUser.email}. Tunggu Admin men-ACC identitas kamu.`);
+                // Isi juga otomatis input nomor WA pada form di bawahnya
+                document.getElementById('input-wa-form').value = noWaInput;
+
+                alert(`Foto identitas & Nomor WA (${noWaInput}) berhasil terunggah! Terikat dengan email: ${currentUser.email}. Bot WA akan otomatis mengirim notifikasi aktivasi setelah di-ACC oleh Admin.`);
                 fileInput.value = '';
             } catch (err) {
                 alert("Gagal mengunggah foto identitas: " + err.message);
@@ -479,6 +506,7 @@
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
 
             const nama = document.getElementById('input-nama').value;
+            const noWa = document.getElementById('input-wa-form').value;
             const dana = document.getElementById('input-dana').value;
             const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
             const total = nominal + BIAYA_ADMIN;
@@ -506,6 +534,8 @@
                 jatuhTempoIso: jatuhTempoIso,
                 jatuhTempoStr: jatuhTempoStr,
                 nama: nama,
+                noHp: noWa,
+                whatsapp: noWa,
                 user_email: currentUser.email,
                 user_uid: currentUser.uid,
                 dana: dana,
@@ -518,6 +548,7 @@
             if (jalurAktif === 'KASBON') {
                 let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH MENGAJUKAN KASBON DANA!* 💸\n\n`;
                 msg += `• *Nama Pemohon*: ${nama}\n`;
+                msg += `• *No. WhatsApp*: ${noWa}\n`;
                 msg += `• *Email Terikat*: ${currentUser.email}\n`;
                 msg += `• *No. DANA Target*: ${dana}\n`;
                 msg += `• *TOTAL TAGIHAN*: *Rp ${total.toLocaleString('id-ID')}*\n`;
@@ -526,6 +557,7 @@
             } else {
                 let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH BAYAR VIA QRIS / CASH!* 🛍️\n\n`;
                 msg += `• *Nama Pembeli*: ${nama}\n`;
+                msg += `• *No. WhatsApp*: ${noWa}\n`;
                 msg += `• *Email*: ${currentUser.email}\n`;
                 msg += `• *TOTAL BAYAR*: *Rp ${total.toLocaleString('id-ID')}*\n`;
                 msg += `• *Bukti Foto*: Terlampir via WA Admin\n`;
@@ -554,7 +586,7 @@
             if (!tbody) return;
 
             if (listKasbonGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500 italic text-xs">Belum ada transaksi tersimpan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500 italic text-xs">Belum ada transaksi tersimpan.</td></tr>`;
                 return;
             }
 
@@ -564,21 +596,24 @@
                 tr.className = "hover:bg-slate-800/50 transition-colors";
 
                 const isLunas = item.status === 'LUNAS' || item.status === 'LUNAS (DIRECT)';
+                const isAcc = item.status === 'ACC' || item.statusAcc === 'ACC';
                 const isMenungguAcc = item.status === 'MENUNGGU ACC KTP';
 
                 let statusBadge = "";
                 if (isLunas) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LUNAS</span>`;
+                else if (isAcc) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"><i class="fas fa-check-circle mr-1"></i>KTP ACTIVATED</span>`;
                 else if (isMenungguAcc) statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse"><i class="fas fa-clock mr-1"></i>MENUNGGU ACC KTP</span>`;
                 else statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">BELUM LUNAS</span>`;
 
                 tr.innerHTML = `
-                    <td class="p-3 text-slate-400 text-[11px]">${item.tanggal}</td>
-                    <td class="p-3 text-[11px]">${item.jenis === 'KASBON' ? '[Kasbon] ' + item.jatuhTempoStr : '[Direct] Cash'}</td>
+                    <td class="p-3 text-slate-400 text-[11px]">${item.tanggal || '-'}</td>
+                    <td class="p-3 text-[11px]">${item.jenis === 'KASBON' ? '[Kasbon] ' + (item.jatuhTempoStr || '-') : '[Direct] Cash'}</td>
                     <td class="p-3">
-                        <div class="font-bold text-white">${item.nama}</div>
-                        <div class="text-[9px] text-amber-400">${item.user_email || '-'}</div>
+                        <div class="font-bold text-white">${item.nama || '-'}</div>
+                        <div class="text-[9px] text-amber-400 font-mono">${item.user_email || '-'}</div>
                     </td>
-                    <td class="p-3 font-mono text-sky-400">${item.dana}</td>
+                    <td class="p-3 font-mono text-emerald-400 font-bold">${item.noHp || item.whatsapp || '-'}</td>
+                    <td class="p-3 font-mono text-sky-400">${item.dana || '-'}</td>
                     <td class="p-3 font-extrabold text-emerald-400">Rp ${(item.total || 0).toLocaleString('id-ID')}</td>
                     <td class="p-3">${statusBadge}</td>
                     <td class="p-3 text-center">
