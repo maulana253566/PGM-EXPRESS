@@ -97,7 +97,7 @@
         <!-- BOX SYARAT KASBON (UPLOAD IDENTITAS) -->
         <div id="box-syarat-kasbon" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 hidden">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-200">Verifikasi Identitas KTP/Pelajar</span>
+                <span class="text-xs font-bold text-slate-200">Step 1: Upload Foto KTP/Pelajar</span>
                 <span id="status-persyaratan-text" class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">BELUM DI-ACC ADMIN</span>
             </div>
             
@@ -117,7 +117,7 @@
             </div>
         </div>
 
-        <!-- BOX DISKON TIKTOK (HANYA MUNCUL DI KASBON) -->
+        <!-- BOX DISKON TIKTOK (HANYA MUNCUL DI KASBON BILA DI-ACC) -->
         <div id="box-diskon-tiktok" class="bg-slate-900 border border-amber-500/30 p-4 rounded-2xl space-y-3 hidden">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-black text-amber-400 flex items-center gap-2">
@@ -148,7 +148,7 @@
 
         <!-- FORMULIR INPUT TRANSAKSI -->
         <form id="form-kasbon" onsubmit="tambahKasbon(event)" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-            <h3 class="text-sm font-extrabold text-white border-b border-slate-800 pb-2">Detail Pengajuan Transaksi</h3>
+            <h3 class="text-sm font-extrabold text-white border-b border-slate-800 pb-2">Step 2: Isi Nominal & Ajukan Kasbon</h3>
 
             <div>
                 <label class="block text-[11px] text-slate-400 mb-1">Email Terikat (Google):</label>
@@ -247,6 +247,7 @@
         let isKtpApprovedByAdmin = false;
         let isDiscountApplied = false;
         let appliedTokenCode = "";
+        let currentUploadedKey = null; // Menyimpan ID Transaksi KTP yang di-ACC
         let listKasbonGlobal = [];
         let currentUser = null;
 
@@ -305,6 +306,7 @@
             }
         };
 
+        // LISTENER KUNCIAN DARI DATABASE ADMIN
         adminAccRef.on('value', (snapshot) => {
             const val = snapshot.val();
             if (val && typeof val === 'object') {
@@ -398,7 +400,6 @@
                 btnSubmit.innerHTML = `<i class="fas fa-check-circle"></i> Saya Sudah Transfer QRIS / Cash & Konfirmasi`;
             } else {
                 BIAYA_ADMIN = isDiscountApplied ? 5000 : 10000;
-                boxDiskonTiktok.classList.remove('hidden');
                 
                 labelKasbon.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-amber-500 bg-amber-500/10 cursor-pointer transition-all";
                 labelBeli.className = "flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-slate-700 bg-slate-800/50 cursor-pointer transition-all";
@@ -423,6 +424,7 @@
             });
         }
 
+        // STEP 1: UPLOAD KTP (MENGUNCI BILA BELUM DI-ACC)
         async function uploadKtpKeDatabase() {
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
 
@@ -448,8 +450,10 @@
                 const tanggalPinjamStr = sekarang.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
 
                 const newPostRef = kasbonRef.push();
+                currentUploadedKey = newPostRef.key;
+
                 await newPostRef.set({
-                    id: newPostRef.key,
+                    id: currentUploadedKey,
                     jenis: 'KASBON',
                     tanggal: tanggalPinjamStr,
                     nama: namaPembeli,
@@ -467,9 +471,9 @@
                 });
 
                 document.getElementById('input-wa-form').value = noWaInput;
-                adminAccRef.set(false);
+                adminAccRef.set(false); // PASTI DILOCK HINGGA ADMIN ACC
 
-                alert(`Foto KTP berhasil terunggah!\n\nStatus saat ini: MENUNGGU ACC ADMIN.\nBot WA akan menge-chat nomor ${noWaInput} setelah Admin menyetujui.`);
+                alert(`Foto KTP berhasil terunggah!\n\nStatus saat ini: MENUNGGU ACC ADMIN.\nBot WA akan menge-chat nomor ${noWaInput} setelah Admin menyetujui, dan Form Kasbon di bawah baru akan terbuka.`);
                 fileInput.value = '';
             } catch (err) {
                 alert("Gagal mengunggah foto identitas: " + err.message);
@@ -480,10 +484,12 @@
             }
         }
 
+        // KENDALI KUNCIAN FORM BAWAH
         function updateKasbonFormAccess() {
             const btnSubmit = document.getElementById('btn-submit-form');
             const statusText = document.getElementById('status-persyaratan-text');
             const badgeAdmin = document.getElementById('badge-verifikasi-admin');
+            const boxDiskonTiktok = document.getElementById('box-diskon-tiktok');
 
             if (isKtpApprovedByAdmin) {
                 statusText.innerText = "ACC DITERIMA";
@@ -491,6 +497,8 @@
                 
                 badgeAdmin.innerHTML = `<i class="fas fa-check-circle mr-1"></i> Syarat Identitas Telah Di-ACC Admin`;
                 badgeAdmin.className = "text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 text-center";
+
+                boxDiskonTiktok.classList.remove('hidden');
 
                 btnSubmit.disabled = false;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer";
@@ -501,6 +509,8 @@
 
                 badgeAdmin.innerHTML = `<i class="fas fa-lock mr-1"></i> Menunggu Admin ACC Foto Identitas`;
                 badgeAdmin.className = "text-[11px] font-black text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20 text-center";
+
+                boxDiskonTiktok.classList.add('hidden');
 
                 btnSubmit.disabled = true;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60";
@@ -514,11 +524,13 @@
             document.getElementById('input-total').value = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
+        // STEP 2: PENGAJUAN NOMINAL KASBON / DIRECT
         function tambahKasbon(e) {
             e.preventDefault();
             if (!currentUser) return alert("Silakan login dengan Google terlebih dahulu!");
-            if (!isKtpApprovedByAdmin && jalurAktif === 'KASBON') {
-                return alert("Form Kasbon masih terkunci! Tunggu hingga Admin meng-ACC Foto KTP kamu.");
+            
+            if (jalurAktif === 'KASBON' && !isKtpApprovedByAdmin) {
+                return alert("Form Kasbon masih terkunci! Upload identitas KTP dan tunggu hingga Admin meng-ACC terlebih dahulu.");
             }
 
             const nama = document.getElementById('input-nama').value;
@@ -542,25 +554,44 @@
                 initialStatus = 'BELUM LUNAS'; 
             }
 
-            const newPostRef = kasbonRef.push();
-            newPostRef.set({
-                id: newPostRef.key,
-                jenis: jalurAktif,
-                tanggal: tanggalPinjamStr,
-                jatuhTempoIso: jatuhTempoIso,
-                jatuhTempoStr: jatuhTempoStr,
-                nama: nama,
-                noHp: noWa,
-                whatsapp: noWa,
-                user_email: currentUser.email,
-                user_uid: currentUser.uid,
-                dana: dana,
-                nominal: nominal,
-                total: total,
-                catatan: catatan,
-                status: initialStatus,
-                tokenDiskonUsed: isDiscountApplied ? appliedTokenCode : null
-            });
+            // JIKA TRANSAKSI KASBON: PERBARUI (UPDATE) BARIS KTP YANG SUDAH DI-ACC BUKAN BUAT BARU
+            if (jalurAktif === 'KASBON' && currentUploadedKey) {
+                database.ref('kasbon_list/' + currentUploadedKey).update({
+                    jenis: 'KASBON',
+                    tanggal: tanggalPinjamStr,
+                    jatuhTempoIso: jatuhTempoIso,
+                    jatuhTempoStr: jatuhTempoStr,
+                    nama: nama,
+                    noHp: noWa,
+                    whatsapp: noWa,
+                    dana: dana,
+                    nominal: nominal,
+                    total: total,
+                    catatan: catatan,
+                    status: initialStatus,
+                    tokenDiskonUsed: isDiscountApplied ? appliedTokenCode : null
+                });
+            } else {
+                // UNTUK BELI DIRECT
+                const newPostRef = kasbonRef.push();
+                newPostRef.set({
+                    id: newPostRef.key,
+                    jenis: jalurAktif,
+                    tanggal: tanggalPinjamStr,
+                    jatuhTempoIso: jatuhTempoIso,
+                    jatuhTempoStr: jatuhTempoStr,
+                    nama: nama,
+                    noHp: noWa,
+                    whatsapp: noWa,
+                    user_email: currentUser.email,
+                    user_uid: currentUser.uid,
+                    dana: dana,
+                    nominal: nominal,
+                    total: total,
+                    catatan: catatan,
+                    status: initialStatus
+                });
+            }
 
             if (jalurAktif === 'KASBON') {
                 let msg = `*HALO ADMIN PGM EXPRESS, SAYA SUDAH MENGAJUKAN KASBON DANA!* 💸\n\n`;
@@ -582,7 +613,9 @@
                 window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             }
 
+            // RE-LOCK FORM KASBON UNTUK TRANSAKSI BERIKUTNYA
             adminAccRef.set(false);
+            currentUploadedKey = null;
             document.getElementById('form-kasbon').reset();
             if (currentUser) document.getElementById('input-nama').value = currentUser.displayName || '';
             document.getElementById('input-total').value = "Rp 0";
