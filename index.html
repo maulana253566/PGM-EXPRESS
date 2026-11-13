@@ -124,10 +124,10 @@
                     <i class="fab fa-tiktok"></i> Diskon Admin TikTok (Rp 10.000 -> Rp 5.000)
                 </span>
                 <button type="button" onclick="bukaLinkTikTok()" class="px-2.5 py-1 rounded-lg bg-black text-white border border-slate-700 text-[10px] font-bold flex items-center gap-1 hover:bg-slate-800">
-                    <i class="fab fa-tiktok"></i> Follow TikTok PGM
+                    <i class="fab fa-tiktok"></i> Follow @pgmexpress2026
                 </button>
             </div>
-            <p class="text-[11px] text-slate-400">Follow akun TikTok kami, lalu gunakan token diskon yang dikirimkan oleh Bot WA Admin.</p>
+            <p class="text-[11px] text-slate-400">Follow akun TikTok kami, lalu masukkan kode token diskon yang dikirimkan oleh Admin.</p>
             <div class="flex gap-2">
                 <input type="text" id="input-token-diskon" placeholder="Masukkan Kode Token (misal: PGM-XXXX)" class="uppercase flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono">
                 <button type="button" onclick="klaimTokenDiskon()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl transition">
@@ -353,6 +353,7 @@
             window.open(TIKTOK_URL, '_blank');
         }
 
+        // FUNGSI KLAIM TOKEN DISKON TIKTOK
         async function klaimTokenDiskon() {
             const tokenInput = document.getElementById('input-token-diskon').value.trim().toUpperCase();
             const infoStatus = document.getElementById('status-token-info');
@@ -363,6 +364,10 @@
             }
 
             try {
+                infoStatus.classList.remove('hidden');
+                infoStatus.innerText = "Memeriksa token...";
+                infoStatus.className = "text-xs font-bold text-amber-400 mt-1 block";
+
                 const tokenRef = database.ref('tokens/' + tokenInput);
                 const snapshot = await tokenRef.once('value');
                 const tokenData = snapshot.val();
@@ -378,7 +383,7 @@
                 } else {
                     isDiscountApplied = true;
                     appliedTokenCode = tokenInput;
-                    BIAYA_ADMIN = 5000;
+                    BIAYA_ADMIN = 5000; // Biaya admin kasbon terpotong jadi Rp 5.000
                     
                     await tokenRef.update({
                         isUsed: true,
@@ -395,6 +400,7 @@
                 }
             } catch (err) {
                 alert("Gagal memverifikasi token: " + err.message);
+                infoStatus.classList.add('hidden');
             }
         }
 
@@ -523,7 +529,7 @@
                 statusText.className = "text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                 badgeAdmin.innerHTML = `<i class="fas fa-check-circle mr-1"></i> Syarat Identitas Telah Di-ACC Admin`;
                 badgeAdmin.className = "text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 text-center";
-                boxDiskonTiktok.classList.remove('hidden');
+                boxDiskonTiktok.classList.remove('hidden'); // Kotak diskon TikTok muncul setelah KTP di-ACC Admin
 
                 btnSubmit.disabled = false;
                 btnSubmit.className = "w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer";
